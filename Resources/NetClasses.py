@@ -5,13 +5,15 @@ from torch import nn
 
 class NetworkDef(nn.Module):
 
+    layers: dict = {}  # layers of the network as labeled by a string name
+    layerNames: list = []  # names of layers in order of execution
 
     def __init__(self, layerSizes: list[list], layerNames: list[str], layerTypes: list, layerActivations: list ):
         '''
         Initializes the network
         :param layerSizes: The size of each layers input and output neurons -> AllLayers[specificLayer] -> [#in, #out]
-        :param layerNames: T
-        :param layerTypes:
+        :param layerNames: The name of each layer
+        :param layerTypes: The type of layer (linear, rnn)
         '''
         super().__init__()
 
@@ -24,7 +26,9 @@ class NetworkDef(nn.Module):
 
 
         self.numLayers = len(layerNames)
-        self._layerIndexes = list(range(1,self.numLayers))
+        self.layerNames = layerNames
+
+        self._layerIndexes = list(range(1,self.numLayers)) # used for Forward
 
         self.layers: dict = {}
 
@@ -34,8 +38,11 @@ class NetworkDef(nn.Module):
             self.layers[layerNames[i]] = layerTypes[i](layerSizes[i][0], layerSizes[i][1])
 
 
-    def Forward(self, traningSet: dict) -> pt.Tensor:
-        output: pt.Tensor =
+    def Forward(self, trainingSet: "TrainingSet") -> pt.Tensor:
+        output: pt.Tensor = self._ForwardStep(0, trainingSet.trainingData[0])
+
+    def _ForwardStep(self, layerIndex: int, inputData: pt.Tensor) -> pt.Tensor:
+        return self.layerActivations[layerIndex](self.layers[self.layerNames[layerIndex]](inputData))
 
 
 
