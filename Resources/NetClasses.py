@@ -6,24 +6,37 @@ from torch import nn
 class NetworkDef(nn.Module):
 
 
-
-    def __init__(self, layerSizes: list[list], layerNames: list, layerTypes: list):
-
+    def __init__(self, layerSizes: list[list], layerNames: list[str], layerTypes: list, layerActivations: list ):
+        '''
+        Initializes the network
+        :param layerSizes: The size of each layers input and output neurons -> AllLayers[specificLayer] -> [#in, #out]
+        :param layerNames: T
+        :param layerTypes:
+        '''
         super().__init__()
 
         if len(layerSizes) != len(layerNames):
             raise Exception("Invalid number of neuron sets given number of layers")
         if len(layerTypes) != len(layerTypes):
             raise Exception("Invalid number of layer names given number of layer types")
+        if len(layerActivations) != len(layerTypes):
+            raise Exception("Invalid number of layer Activations given number of layer types")
+
+
+        self.numLayers = len(layerNames)
+        self._layerIndexes = list(range(1,self.numLayers))
 
         self.layers: dict = {}
+
 
         for i in range(len(layerNames)):
             # define layer by name using the layers type, with its number input and output neurons respectfully
             self.layers[layerNames[i]] = layerTypes[i](layerSizes[i][0], layerSizes[i][1])
 
 
-    def Forward(self, input: pt.Tensor) -> pt.Tensor:
+    def Forward(self, traningSet: dict) -> pt.Tensor:
+        output: pt.Tensor =
+
 
 
 
@@ -40,6 +53,8 @@ class TrainingSet():
     Holds Training and Testing data for a specific neural network model
     '''
 
+    trainingData: list = None # listOfAllTrials[trialNumber] -> fulldict[key = inputName] -> Tensor of trial (2D if RNN)
+    testingData: pt.Tensor = None # fullList[trialNumber] -> Tensor of output
 
 
     def __init__(self, trainingSets: list, testingSets: list):
