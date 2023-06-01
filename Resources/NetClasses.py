@@ -42,26 +42,25 @@ class TrainingSet():
 
 
 
-    def __init__(self, trainingSets: dict, testingSets: list):
+    def __init__(self, trainingSets: list, testingSets: list):
         '''
         Generate TrainingSet
-        :param trainingSets: where data is fulldict[key = inputName] -> listOfAllTrials[trialNumber] -> ndarray of trial (2D if RNN)
+        :param trainingSets: where data is listOfAllTrials[trialNumber] -> fulldict[key = inputName] -> ndarray of trial (2D if RNN)
         :param testingSets: where data is fullList[trialNumber] -> ndarray of output
         '''
 
-        randomKey = list(trainingSets.keys())[0]
-        if len(trainingSets[randomKey]) != len(testingSets):
-            raise Exception("Number of training sets must equal number of testing sets!")
 
-        training: dict = {}
+        for i, element in enumerate(trainingSets):
+            for j, (key, value) in enumerate(element):
+                trainingSets[i][key] = pt.tensor(np.asarray(value), dtype=pt.float32)
 
-        for index, (key, value) in enumerate(trainingSets):
-            training[key] = pt.tensor(np.asarray(value), dtype=pt.float32)
+        self.trainingData = trainingSets
+        self.testingData = pt.Tensor(np.asarray(testingSets), dtype=pt.float32)
 
-        self.trainingData = training
-        self.testingData = pt.tensor(np.asarray(testingSets), dtype=pt.float32)
-
-
-
-
-
+    def GetTrial(self, trial: int) -> (dict, pt.Tensor):
+        '''
+        Returns training and testing data for a specific trial index
+        :param trial: int index of trial
+        :return: dict of training data, where key is layerName of input and data is the Tensor, and the resultant Tensor
+        '''
+        return self.trainingData[trial], self.testingData[trial]
