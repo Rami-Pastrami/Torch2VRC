@@ -38,10 +38,10 @@ class NetworkDef(nn.Module):
             self.layers[layerNames[i]] = layerTypes[i](layerSizes[i][0], layerSizes[i][1])
 
 
-    def Forward(self, trainingSet: "TrainingSet") -> pt.Tensor:
-        output: pt.Tensor = self._ForwardStep(0, trainingSet.trainingData[0])
+    def Forward(self, trainingSet: dict) -> pt.Tensor:
+        output: pt.Tensor = self._SingleForwardStep(0, )
 
-    def _ForwardStep(self, layerIndex: int, inputData: pt.Tensor) -> pt.Tensor:
+    def _SingleForwardStep(self, layerIndex: int, inputData: pt.Tensor) -> pt.Tensor:
         return self.layerActivations[layerIndex](self.layers[self.layerNames[layerIndex]](inputData))
 
 
