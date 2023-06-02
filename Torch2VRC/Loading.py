@@ -13,7 +13,16 @@ def LoadLatestVRCLog(VRCLogDict: str = None, isFormatCSV: bool = False, isFormat
 
     return LoadLogFileRaw(fullPath, logTag, isFormatCSV, isFormatFloat,isFormatInt)
 
-def LoadLogFileRaw(LogPath: str, identifier: str, isCSV: bool, isFloat: bool, isInt: bool) -> dict:
+def LoadLogFileRaw(LogPath: str, identifier: str = 'RAMI_EXPORT', isCSV: bool = True, isFloat: bool = True, isInt: bool = False) -> dict:
+    '''
+    Responsible for loading VRC logs into a friendly format
+    :param LogPath: Path to the log file
+    :param identifier: Optional: The tag in the log to denote an export
+    :param isCSV: Optional: if each export should be formatted as a CSV
+    :param isFloat: is each line (or CSV element) a float
+    :param isInt: ditto but int
+    :return: dictionary where each key is a given key from the export, and the value is a list of every instance a value has been exported under that key (convert as a CSV / etc. as specified)
+    '''
     seenVariableNames: list[str] = []
     c: str
     d: dict = {}
