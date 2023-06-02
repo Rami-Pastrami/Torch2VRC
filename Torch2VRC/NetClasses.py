@@ -45,16 +45,6 @@ class NetworkDef(nn.Module):
         return self.layerActivations[layerIndex](self.layers[self.layerNames[layerIndex]](inputData))
 
 
-
-
-
-
-
-
-
-
-
-
 class TrainingSet():
     '''
     Holds Training and Testing data for a specific neural network model
@@ -63,8 +53,7 @@ class TrainingSet():
     trainingData: list = None # listOfAllTrials[trialNumber] -> fulldict[key = inputName] -> Tensor of trial (2D if RNN)
     testingData: pt.Tensor = None # fullList[trialNumber] -> Tensor of output
 
-
-    def __init__(self, trainingSets: list, testingSets: list):
+    def __init__(self, trainingSets: list[dict[np.ndarray]], testingSets: list[np.ndarray]):
         '''
         Generate TrainingSet
         :param trainingSets: where data is listOfAllTrials[trialNumber] -> fulldict[key = inputName] -> ndarray of trial (2D if RNN)
