@@ -4,7 +4,7 @@ import platform
 
 
 def LoadLatestVRCLog(VRCLogDict: str = None, isFormatCSV: bool = False, isFormatFloat: bool = False, isFormatInt: bool = False,
-               logTag='RAMI_EXPORT', convertToNP: bool = False) -> dict:
+               logTag='RAMI_EXPORT:', convertToNP: bool = False) -> dict:
 
     if VRCLogDict is None:
         VRCLogDict = _GetVRCLogDirectory()
@@ -13,7 +13,7 @@ def LoadLatestVRCLog(VRCLogDict: str = None, isFormatCSV: bool = False, isFormat
 
     return LoadLogFileRaw(fullPath, logTag, isFormatCSV, isFormatFloat,isFormatInt)
 
-def LoadLogFileRaw(LogPath: str, identifier: str = 'RAMI_EXPORT', isCSV: bool = True, isFloat: bool = True, isInt: bool = False) -> dict:
+def LoadLogFileRaw(LogPath: str, identifier: str = 'RAMI_EXPORT:', isCSV: bool = True, isFloat: bool = True, isInt: bool = False) -> dict:
     '''
     Responsible for loading VRC logs into a friendly format
     :param LogPath: Path to the log file
@@ -27,13 +27,12 @@ def LoadLogFileRaw(LogPath: str, identifier: str = 'RAMI_EXPORT', isCSV: bool = 
     c: str
     d: dict = {}
     f = open(LogPath, 'r', encoding='utf8')
-    for l in f:
-        c = l.strip()
+    for line in f:
+        c = line.strip()
 
         # ignore the irrelevant log lines without the identifier
         if identifier in c:
             # Isolate the variable name and the data
-            d = {}
             _, c = c.split(identifier)
             variableName, rawData = c.split('|')
 
@@ -44,7 +43,7 @@ def LoadLogFileRaw(LogPath: str, identifier: str = 'RAMI_EXPORT', isCSV: bool = 
                 seenVariableNames.append(variableName)
                 d[variableName] = [_ProcessRawData(rawData, isCSV, isFloat, isInt)]
             else:
-                d[variableName] = d[variableName].append(_ProcessRawData(rawData, isCSV, isFloat, isInt))
+                d[variableName].append(_ProcessRawData(rawData, isCSV, isFloat, isInt))
     f.close()  # We are good netizens
     return d
 
