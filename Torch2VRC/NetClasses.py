@@ -58,6 +58,7 @@ class NetworkDef(nn.Module):
             self._layers.append(self.layerTypes[i](self.layerInSizes[i], self.layerOutSizes[i]))
 
         # Define layers in which input neurons will be merged with output of previous layer
+        self._mergingLayers: list = []
         for i in range(self.numberOfLayers):
             self._mergingLayers.append((layerInputSizes[i] != 0))
 
