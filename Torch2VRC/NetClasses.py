@@ -55,10 +55,30 @@ class NetworkDef(nn.Module):
             self._mergingLayers.append((layerInputSizes[i] != 0))
 
 
-    def Forward(self, trainingSet: dict) -> pt.Tensor:
-        output: pt.Tensor = self._SingleForwardStep(0, )
+    def _GenerateNextInputLayer(self, index: int, previousInternalInput: pt.Tensor, previousExternalInput: pt.Tensor) \
+            -> pt.Tensor:
+        '''
+        Generates the next input layer (or the NN output)
+        :param index: the layer index
+        :param previousInternalInput: the layer from the previous NN layer, may be None
+        :param previousExternalInput: input from external input neurons, may be None
+        :return: The Tensor to be passed to the next layer (or output entirely)
+        '''
+        if index == 0:
+            # Nothing to merge if this is the first layer!
+            return previousExternalInput
 
-    def _SingleForwardStep(self, layerIndex: int, inputData: pt.Tensor) -> pt.Tensor:
+        if(self._mergingLayers[index]):
+            # we need to merge an input layer
+            return pt.cat((previousInternalInput, previousExternalInput), 0)
+
+        # Nothing to merge!
+        return previousInternalInput
+
+    def ForwardOld(self, trainingSet: dict) -> pt.Tensor:
+        output: pt.Tensor = self._SingleForwardStepOLD(0)
+
+    def _SingleForwardStepOLD(self, layerIndex: int, inputData: pt.Tensor) -> pt.Tensor:
         return self.layerActivations[layerIndex](self.layers[self.layerNames[layerIndex]](inputData))
 
 
