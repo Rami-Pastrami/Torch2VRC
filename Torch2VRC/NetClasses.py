@@ -5,16 +5,53 @@ from torch import nn
 
 class NetworkDef(nn.Module):
 
-    layers: dict = {}  # layers of the network as labeled by a string name
-    layerNames: list = []  # names of layers in order of execution
+    numberOfLayers: int = 0  # number of layers in the network
+    layerOutSizes: list[int]  # The number of neurons each layer outputs
+    layerInSizes: list[int]  # The number of neurons each layer receives
+    # (as a sum of given input size and additional input data sizes)
+    layerInputSizes: list[int]  # number of external input neurons coming it at each layer
 
-    def __init__(self, layerSizes: list[list], layerNames: list[str], layerTypes: list, layerActivations: list ):
+    layerActivationFunctions: list  # activation function of a layer
+    layerTypes: list  # whether layer is linear, rnn, etc
+
+    _layers: list
+
+    def __init__(self, layerTypes: list[str], layerOutSizes: list[int], layerInSizeBeforeAdditional: list[int],
+                 layerInputSizes: list[int], layerActivationFuncs: list):
         '''
-        Initializes the network
-        :param layerSizes: The size of each layers input and output neurons -> AllLayers[specificLayer] -> [#in, #out]
-        :param layerNames: The name of each layer
-        :param layerTypes: The type of layer (linear, rnn)
+
+        :param layerTypes: type of layer (ex: Linear) as string
+        :param layerOutSizes:
+        :param layerInSizeBeforeAdditional:
+        :param layerInputSizes:
+        :param layerActivationFuncs:
         '''
+
+        super().__init__()
+
+        # define base variables
+        self.numberOfLayers = len(layerTypes)
+        # TODO length check, all lists must be of same length!
+        self.layerOutSizes = layerOutSizes
+        self.layerInputSizes = layerInputSizes
+        self.layerInSizes = [layerInputSizes[i] + layerInSizeBeforeAdditional[i] for i in range(self.numberOfLayers)]
+        self.layerActivationFunctions = layerActivationFuncs
+
+        self.layerTypes: list = []
+        for L in layerTypes:
+            if L.lower() == "linear":
+                self.layerTypes.append(nn.Linear)
+            # TODO add RNN and other layer types!
+            else:
+                raise Exception("Unsupported layer type requested!")
+
+        # Define actual layers (Linear, RNN, etc)
+        self._layers = []
+        for i in range(self.numberOfLayers):
+            self._layers.append(self.layerTypes[i](self.layerInSizes[i], self.layerOutSizes[i]))
+
+    def __initOLD__(self, layerSizes: list[list], layerNames: list[str], layerTypes: list, layerActivations: list ):
+
         super().__init__()
 
         if len(layerSizes) != len(layerNames):
