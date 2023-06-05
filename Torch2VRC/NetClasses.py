@@ -54,6 +54,17 @@ class NetworkDef(nn.Module):
         for i in range(self.numberOfLayers):
             self._mergingLayers.append((layerInputSizes[i] != 0))
 
+    def Forward(self, orderedInputTensors: list[pt.Tensor]) -> pt.Tensor:
+        '''
+        Runs forward propagation
+        :param orderedInputTensors: input Tensors for this particular data sample
+        :return: output Tensor
+        '''
+        previousLayerData: pt.Tensor = None
+
+        for i in range(self.numberOfLayers):
+            previousLayerData = self._GenerateNextInputLayer(i, previousLayerData, orderedInputTensors[i])
+        return previousLayerData
 
     def _GenerateNextInputLayer(self, index: int, previousInternalInput: pt.Tensor, previousExternalInput: pt.Tensor) \
             -> pt.Tensor:
@@ -74,6 +85,9 @@ class NetworkDef(nn.Module):
 
         # Nothing to merge!
         return previousInternalInput
+
+
+
 
     def ForwardOld(self, trainingSet: dict) -> pt.Tensor:
         output: pt.Tensor = self._SingleForwardStepOLD(0)
