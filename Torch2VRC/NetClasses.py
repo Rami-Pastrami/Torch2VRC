@@ -14,21 +14,21 @@ class NetworkDef(nn.Module):
     layerActivationFunctions: list  # activation function of a layer
     layerTypes: list  # whether layer is linear, rnn, etc
 
-    _layers: list
+    _layers: list # actual layers
+    _mergingLayers: list[bool]  # true where a layer has merging input neurons
 
     def __init__(self, layerTypes: list[str], layerOutSizes: list[int], layerInSizeBeforeAdditional: list[int],
                  layerInputSizes: list[int], layerActivationFuncs: list):
         '''
-
+        Defines Neural network properties
         :param layerTypes: type of layer (ex: Linear) as string
-        :param layerOutSizes:
-        :param layerInSizeBeforeAdditional:
-        :param layerInputSizes:
-        :param layerActivationFuncs:
+        :param layerOutSizes: the number of neurons each layer must output
+        :param layerInSizeBeforeAdditional: The neurons each layer inputs MINUS any additional external input neurons
+        :param layerInputSizes: The number of neurons inputted externally, usually 0 for layers other than the first
+        :param layerActivationFuncs: The activation function used for a layer
         '''
 
         super().__init__()
-
         # define base variables
         self.numberOfLayers = len(layerTypes)
         # TODO length check, all lists must be of same length!
@@ -50,29 +50,9 @@ class NetworkDef(nn.Module):
         for i in range(self.numberOfLayers):
             self._layers.append(self.layerTypes[i](self.layerInSizes[i], self.layerOutSizes[i]))
 
-    def __initOLD__(self, layerSizes: list[list], layerNames: list[str], layerTypes: list, layerActivations: list ):
-
-        super().__init__()
-
-        if len(layerSizes) != len(layerNames):
-            raise Exception("Invalid number of neuron sets given number of layers")
-        if len(layerTypes) != len(layerTypes):
-            raise Exception("Invalid number of layer names given number of layer types")
-        if len(layerActivations) != len(layerTypes):
-            raise Exception("Invalid number of layer Activations given number of layer types")
-
-
-        self.numLayers = len(layerNames)
-        self.layerNames = layerNames
-
-        self._layerIndexes = list(range(1,self.numLayers)) # used for Forward
-
-        self.layers: dict = {}
-
-
-        for i in range(len(layerNames)):
-            # define layer by name using the layers type, with its number input and output neurons respectfully
-            self.layers[layerNames[i]] = layerTypes[i](layerSizes[i][0], layerSizes[i][1])
+        # Define layers in which input neurons will be merged with output of previous layer
+        for i in range(self.numberOfLayers):
+            self._mergingLayers.append((layerInputSizes[i] != 0))
 
 
     def Forward(self, trainingSet: dict) -> pt.Tensor:
