@@ -71,7 +71,8 @@ class NetworkDef(nn.Module):
         previousLayerData: pt.Tensor = None
 
         for i in range(self.numberOfLayers):
-            previousLayerData = self._GenerateNextInputLayer(i, previousLayerData, orderedInputTensors[i])
+            previousLayerData = self.layerActivationFunctions[i](self._GenerateNextInputLayer(i, previousLayerData,
+                                                                                              orderedInputTensors[i]))
         return previousLayerData
 
     def _GenerateNextInputLayer(self, index: int, previousInternalInput: pt.Tensor, previousExternalInput: pt.Tensor) \
