@@ -35,7 +35,6 @@ class NetworkDef(nn.Module):
         self.layerOutSizes = layerOutSizes
         self.layerInputSizes = layerInputSizes
         self.layerInSizes = [layerInputSizes[i] + layerInSizeBeforeAdditional[i] for i in range(self.numberOfLayers)]
-        self.layerActivationFunctions = layerActivationFuncs
 
         self.layerTypes: list = []
         for L in layerTypes:
@@ -44,6 +43,14 @@ class NetworkDef(nn.Module):
             # TODO add RNN and other layer types!
             else:
                 raise Exception("Unsupported layer type requested!")
+
+        self.layerActivationFunctions: list = []
+        for A in layerActivationFuncs:
+            if A.lower() == "tanh":
+                self.layerActivationFunctions.append(pt.tanh)
+            # TODO add other activation functions!
+            else:
+                raise Exception("Unsupported Activation Function type requested!")
 
         # Define actual layers (Linear, RNN, etc)
         self._layers = []
