@@ -96,6 +96,28 @@ class NetworkDef(nn.Module):
         # Nothing to merge!
         return previousInternalInput
 
+    def GenerateClassifierTrainingTensors(self, trainingData: dict, keyMappings: list[list or None]) -> list:
+
+        output: list = []
+
+        for mappings in keyMappings:
+
+            if mappings == None:
+                # No input for this layer
+                output.append(None)
+                continue
+
+            arrays: list or np.ndarray = []
+            for mapping in mappings:
+                arrays.append(trainingData[mapping])
+            arrays = np.asarray(arrays)
+            output.append(arrays)
+
+        return output
+
+
+
+
     def GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
 
         def GenerateSubIndexArray(width: int, index: int) -> np.ndarray:
