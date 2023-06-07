@@ -47,6 +47,19 @@ def LoadLogFileRaw(LogPath: str, identifier: str = 'RAMI_EXPORT:', isCSV: bool =
     f.close()  # We are good netizens
     return d
 
+def GenerateTestingData(totalData: dict) -> tuple:
+    '''
+    Generates inputs required for generating testing data for neural network right from Log output
+    :param totalData: Log file output
+    :return: Tuple(ordered list of answers) & (corresponding count of each answer in the set)
+    '''
+
+    answers: list = list(totalData.keys())
+    counts: list = []
+    for ans in answers:
+        counts.append(len(totalData[ans]))
+    return (answers, counts)
+
 def _GetVRCLogDirectory() -> str:
     # Get Log File Directory
     logsPath: str
