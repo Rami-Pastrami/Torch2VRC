@@ -14,5 +14,7 @@ RGB_Net = NetClasses.NetworkDef(["Linear"], [5], [0], [3], ["TanH"])
 answerTable, answerCounts = Loading.GenerateTestingData(importedLog)
 testing = RGB_Net.GenerateClassifierTestingTensor(answerCounts)
 
+# Generate Training Sets
+trainingSet = RGB_Net.GenerateClassifierTrainingTensors(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
 
 print("convinient breakpoint")
