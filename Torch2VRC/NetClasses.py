@@ -109,7 +109,7 @@ class NetworkDef(nn.Module):
         for i, e in enumerate(numberElementsPerAnswer):
 
             for ie in range(e):
-                output.append(GenerateSubIndexArray(aWidth, e))
+                output.append(GenerateSubIndexArray(aWidth, i))
 
         output = np.asarray(output)
         return pt.Tensor(output)
