@@ -109,9 +109,9 @@ class NetworkDef(nn.Module):
 
             arrays: list or np.ndarray = []
             for mapping in mappings:
-                arrays.append(trainingData[mapping])
-            arrays = np.asarray(arrays)
-            output.append(arrays)
+                arrays.append(np.asarray(trainingData[mapping]))
+            arrays = np.vstack(arrays)
+            output.append(pt.Tensor(arrays))
 
         return output
 
