@@ -103,8 +103,12 @@ class NetworkDef(nn.Module):
             o[index] = 1
             return o
 
-        output: list = []
+        output: list or np.ndarray = []
         aWidth: int = len(numberElementsPerAnswer)
+
+        if aWidth != self.layerOutSizes[-1]:
+            raise Exception(f"Number of output neurons defined for this network {self.layerOutSizes[-1]} does not match the number of output neurons defined int he testing set {aWidth}!")
+
         totalOutElements: int = 0
         for i, e in enumerate(numberElementsPerAnswer):
 

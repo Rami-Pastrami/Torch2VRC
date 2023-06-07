@@ -5,7 +5,7 @@ from Torch2VRC import NetClasses
 importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 # separate data into separate channels by color, and prep them for importing into PyTorch
 
-RGB_Net = NetClasses.NetworkDef(["Linear"], [6], [0], [3], ["TanH"])
+RGB_Net = NetClasses.NetworkDef(["Linear"], [5], [0], [3], ["TanH"])
 
 
 # separate into training and testing sets
