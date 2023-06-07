@@ -97,7 +97,14 @@ class NetworkDef(nn.Module):
         return previousInternalInput
 
     def GenerateClassifierTrainingTensors(self, trainingData: dict, keyMappings: list[list or None]) -> list:
+        '''
+        Converts input data into training Tensors indexed to their matching input layer
+        :param trainingData: generated training data dict
+        :param keyMappings: list of lists matching the training data keys to their position within and as input layers.
+        Example: [[keya1, keya2], None, [keyb1, keyb2]] maps 4 keys to layers 1 and 3, assuming 2 possible outputs a & b
 
+        :return: list of tensors (and nones) indexes to where they will be input
+        '''
         output: list = []
 
         for mappings in keyMappings:
@@ -119,7 +126,11 @@ class NetworkDef(nn.Module):
 
 
     def GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
-
+        '''
+        Generates a tensor for classifiers (one correct neuron, rest 0)
+        :param numberElementsPerAnswer: ordered list of number of samples per category as seen in the training data
+        :return:
+        '''
         def GenerateSubIndexArray(width: int, index: int) -> np.ndarray:
             o = np.zeros(width)
             o[index] = 1
