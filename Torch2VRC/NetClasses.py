@@ -96,6 +96,23 @@ class NetworkDef(nn.Module):
         # Nothing to merge!
         return previousInternalInput
 
+    def _GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
+
+        def GenerateSubIndexArray(width: int, index: int) -> np.ndarray:
+            o = np.zeros(width)
+            o[index] = 1
+            return o
+
+        output: list = []
+        aWidth: int = len(numberElementsPerAnswer)
+        totalOutElements: int = 0
+        for i, e in enumerate(numberElementsPerAnswer):
+
+            for ie in range(e):
+                output.append(GenerateSubIndexArray(aWidth, e))
+
+        output = np.asarray(output)
+        return pt.Tensor(output)
 
 
 class TrainingSet():
