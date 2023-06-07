@@ -96,7 +96,7 @@ class NetworkDef(nn.Module):
         # Nothing to merge!
         return previousInternalInput
 
-    def _GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
+    def GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
 
         def GenerateSubIndexArray(width: int, index: int) -> np.ndarray:
             o = np.zeros(width)
