@@ -62,6 +62,7 @@ class NetworkDef(nn.Module):
         for i in range(self.numberOfLayers):
             self._mergingLayers.append((layerInputSizes[i] != 0))
 
+    # TODO possible optimization: increment i by 1 to remove need of conditional in GenerateNextInputLayer
     def Forward(self, orderedInputTensors: list[pt.Tensor]) -> pt.Tensor:
         '''
         Runs forward propagation
@@ -95,14 +96,6 @@ class NetworkDef(nn.Module):
         # Nothing to merge!
         return previousInternalInput
 
-
-
-
-    def ForwardOld(self, trainingSet: dict) -> pt.Tensor:
-        output: pt.Tensor = self._SingleForwardStepOLD(0)
-
-    def _SingleForwardStepOLD(self, layerIndex: int, inputData: pt.Tensor) -> pt.Tensor:
-        return self.layerActivations[layerIndex](self.layers[self.layerNames[layerIndex]](inputData))
 
 
 class TrainingSet():
