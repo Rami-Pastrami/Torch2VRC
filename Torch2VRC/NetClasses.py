@@ -1,7 +1,7 @@
 import numpy as np
 import torch as pt
 from torch import nn
-
+from torch import optim
 
 class NetworkDef(nn.Module):
 
@@ -14,11 +14,15 @@ class NetworkDef(nn.Module):
     layerActivationFunctions: list  # activation function of a layer
     layerTypes: list  # whether layer is linear, rnn, etc
 
-    _layers: list # actual layers
+    trainingSet: list
+    testing: pt.Tensor
+
+    lossFunction = None
+
     _mergingLayers: list[bool]  # true where a layer has merging input neurons
 
     def __init__(self, layerTypes: list[str], layerOutSizes: list[int], layerInSizeBeforeAdditional: list[int],
-                 layerInputSizes: list[int], layerActivationFuncs: list):
+                 layerInputSizes: list[int], layerActivationFuncs: list, lossFunc = nn.MSELoss()):
         '''
         Defines Neural network properties
         :param layerTypes: type of layer (ex: Linear) as string
@@ -26,9 +30,10 @@ class NetworkDef(nn.Module):
         :param layerInSizeBeforeAdditional: The neurons each layer inputs MINUS any additional external input neurons
         :param layerInputSizes: The number of neurons inputted externally, usually 0 for layers other than the first
         :param layerActivationFuncs: The activation function used for a layer
+        :param lossFunc: The loss function to use. Defaults to MSE
         '''
 
-        super().__init__()
+        super(NetworkDef, self).__init__()
         # define base variables
         self.numberOfLayers = len(layerTypes)
         # TODO length check, all lists must be of same length!
@@ -53,7 +58,7 @@ class NetworkDef(nn.Module):
                 raise Exception("Unsupported Activation Function type requested!")
 
         # Define actual layers (Linear, RNN, etc)
-        self._layers = nn.ModuleList[]
+        self._layers = nn.ModuleList() # such that loss can load this
         for i in range(self.numberOfLayers):
             self._layers.append(self.layerTypes[i](self.layerInSizes[i], self.layerOutSizes[i]))
 
@@ -61,6 +66,20 @@ class NetworkDef(nn.Module):
         self._mergingLayers: list = []
         for i in range(self.numberOfLayers):
             self._mergingLayers.append((layerInputSizes[i] != 0))
+
+    def Train(self, numberEpochs: int = 200, learningRate: float = 0.0001):
+
+        optimizer = optim.SGD(self.parameters(), lr=learningRate)
+
+        for epochIndex in range(numberEpochs):
+            NNOutput = self.Forward(self.trainingSet)
+            loss = self.lossFunction(self.trainingSet, NNOutput)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            print(loss.item())
+
+
 
     # TODO possible optimization: increment i by 1 to remove need of conditional in GenerateNextInputLayer
     def Forward(self, orderedInputTensors: list[pt.Tensor]) -> pt.Tensor:
@@ -120,6 +139,7 @@ class NetworkDef(nn.Module):
             arrays = np.vstack(arrays)
             output.append(pt.Tensor(arrays))
 
+        self.trainingSet = output
         return output
 
 
@@ -146,7 +166,8 @@ class NetworkDef(nn.Module):
                 output.append(GenerateSubIndexArray(aWidth, i))
 
         output = np.asarray(output)
-        return pt.Tensor(output)
+        self.testing = pt.Tensor(output)
+        return self.testing
 
 
 class TrainingSet():
