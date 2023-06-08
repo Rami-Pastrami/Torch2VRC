@@ -53,7 +53,7 @@ class NetworkDef(nn.Module):
                 raise Exception("Unsupported Activation Function type requested!")
 
         # Define actual layers (Linear, RNN, etc)
-        self._layers = []
+        self._layers = nn.ModuleList[]
         for i in range(self.numberOfLayers):
             self._layers.append(self.layerTypes[i](self.layerInSizes[i], self.layerOutSizes[i]))
 
