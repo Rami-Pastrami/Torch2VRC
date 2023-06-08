@@ -168,35 +168,3 @@ class NetworkDef(nn.Module):
         output = np.asarray(output)
         self.testing = pt.Tensor(output)
         return self.testing
-
-
-class TrainingSet():
-    '''
-    Holds Training and Testing data for a specific neural network model
-    '''
-
-    trainingData: list = None # listOfAllTrials[trialNumber] -> fulldict[key = inputName] -> Tensor of trial (2D if RNN)
-    testingData: pt.Tensor = None # fullList[trialNumber] -> Tensor of output
-
-    def __init__(self, trainingSets: list[dict[np.ndarray]], testingSets: list[np.ndarray]):
-        '''
-        Generate TrainingSet
-        :param trainingSets: where data is listOfAllTrials[trialNumber] -> fulldict[key = inputName] -> ndarray of trial (2D if RNN)
-        :param testingSets: where data is fullList[trialNumber] -> ndarray of output
-        '''
-
-
-        for i, element in enumerate(trainingSets):
-            for j, (key, value) in enumerate(element):
-                trainingSets[i][key] = pt.tensor(np.asarray(value), dtype=pt.float32)
-
-        self.trainingData = trainingSets
-        self.testingData = pt.Tensor(np.asarray(testingSets), dtype=pt.float32)
-
-    def GetTrial(self, trial: int) -> (dict, pt.Tensor):
-        '''
-        Returns training and testing data for a specific trial index
-        :param trial: int index of trial
-        :return: dict of training data, where key is layerName of input and data is the Tensor, and the resultant Tensor
-        '''
-        return self.trainingData[trial], self.testingData[trial]
