@@ -2,6 +2,7 @@ import numpy as np
 import torch as pt
 from torch import nn
 from torch import optim
+import copy
 
 class NetworkDef(nn.Module):
 
@@ -17,12 +18,10 @@ class NetworkDef(nn.Module):
     trainingSet: list
     testing: pt.Tensor
 
-    lossFunction = None
-
     _mergingLayers: list[bool]  # true where a layer has merging input neurons
 
     def __init__(self, layerTypes: list[str], layerOutSizes: list[int], layerInSizeBeforeAdditional: list[int],
-                 layerInputSizes: list[int], layerActivationFuncs: list, lossFunc = nn.MSELoss()):
+                 layerInputSizes: list[int], layerActivationFuncs: list, lossFunc: str="MSELoss"):
         '''
         Defines Neural network properties
         :param layerTypes: type of layer (ex: Linear) as string
@@ -57,6 +56,9 @@ class NetworkDef(nn.Module):
             else:
                 raise Exception("Unsupported Activation Function type requested!")
 
+        if lossFunc.lower() == "mseloss":
+            self.lossFunction = nn.MSELoss()
+
         # Define actual layers (Linear, RNN, etc)
         self._layers = nn.ModuleList() # such that loss can load this
         for i in range(self.numberOfLayers):
@@ -68,6 +70,8 @@ class NetworkDef(nn.Module):
             self._mergingLayers.append((layerInputSizes[i] != 0))
 
     def Train(self, numberEpochs: int = 200, learningRate: float = 0.0001):
+
+        print("Starting Training!")
 
         optimizer = optim.SGD(self.parameters(), lr=learningRate)
 

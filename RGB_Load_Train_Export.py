@@ -18,7 +18,7 @@ testing = RGB_Net.GenerateClassifierTestingTensor(answerCounts)
 trainingSet = RGB_Net.GenerateClassifierTrainingTensors(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
 
 # train model
-
+RGB_Net.Train()
 
 
 
