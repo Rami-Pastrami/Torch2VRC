@@ -20,85 +20,15 @@ class OldNetworkDef(nn.Module):
 
     _mergingLayers: list[bool]  # true where a layer has merging input neurons
 
-    def __init__(self, layerTypes: list[str], layerOutSizes: list[int], layerInSizeBeforeAdditional: list[int],
-                 layerInputSizes: list[int], layerActivationFuncs: list, lossFunc: str="MSELoss"):
-        '''
-        Defines Neural network properties
-        :param layerTypes: type of layer (ex: Linear) as string
-        :param layerOutSizes: the number of neurons each layer must output
-        :param layerInSizeBeforeAdditional: The neurons each layer inputs MINUS any additional external input neurons
-        :param layerInputSizes: The number of neurons inputted externally, usually 0 for layers other than the first
-        :param layerActivationFuncs: The activation function used for a layer
-        :param lossFunc: The loss function to use. Defaults to MSE
-        '''
+    def __init__(self, numberInputNeurons: int, numberHiddenNeurons: int, numberOutputNeurons: int):
 
-        super(NetworkDef, self).__init__()
-        # define base variables
-        self.numberOfLayers = len(layerTypes)
-        # TODO length check, all lists must be of same length!
-        self.layerOutSizes = layerOutSizes
-        self.layerInputSizes = layerInputSizes
-        self.layerInSizes = [layerInputSizes[i] + layerInSizeBeforeAdditional[i] for i in range(self.numberOfLayers)]
+        super().__init__()
+        self.innerConnections = nn.Linear(numberInputNeurons, numberHiddenNeurons)
+        self.outerConnections = nn.Linear(numberHiddenNeurons, numberOutputNeurons)
 
-        self.layerTypes: list = []
-        for L in layerTypes:
-            if L.lower() == "linear":
-                self.layerTypes.append(nn.Linear)
-            # TODO add RNN and other layer types!
-            else:
-                raise Exception("Unsupported layer type requested!")
-
-        self.layerActivationFunctions: list = []
-        for A in layerActivationFuncs:
-            if A.lower() == "tanh":
-                self.layerActivationFunctions.append(pt.tanh)
-            # TODO add other activation functions!
-            else:
-                raise Exception("Unsupported Activation Function type requested!")
-
-        if lossFunc.lower() == "mseloss":
-            self.lossFunction = nn.MSELoss()
-
-        # Define actual layers (Linear, RNN, etc)
-        self._layers = nn.ModuleList() # such that loss can load this
-        for i in range(self.numberOfLayers):
-            self._layers.append(self.layerTypes[i](self.layerInSizes[i], self.layerOutSizes[i]))
-
-        # Define layers in which input neurons will be merged with output of previous layer
-        self._mergingLayers: list = []
-        for i in range(self.numberOfLayers):
-            self._mergingLayers.append((layerInputSizes[i] != 0))
-
-    def Train(self, numberEpochs: int = 200, learningRate: float = 0.0001):
-
-        print("Starting Training!")
-
-        optimizer = optim.SGD(self.parameters(), lr=learningRate)
-
-        for epochIndex in range(numberEpochs):
-            NNOutput = self.Forward(self.trainingSet)
-            loss = self.lossFunction(self.trainingSet, NNOutput)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            print(loss.item())
-
-
-
-    # TODO possible optimization: increment i by 1 to remove need of conditional in GenerateNextInputLayer
-    def Forward(self, orderedInputTensors: list[pt.Tensor]) -> pt.Tensor:
-        '''
-        Runs forward propagation
-        :param orderedInputTensors: input Tensors for this particular data sample
-        :return: output Tensor
-        '''
-        previousLayerData: pt.Tensor = None
-
-        for i in range(self.numberOfLayers):
-            previousLayerData = self.layerActivationFunctions[i](self._GenerateNextInputLayer(i, previousLayerData,
-                                                                                              orderedInputTensors[i]))
-        return previousLayerData
-
+    def Forward(self, input: pt.Tensor):
+        hiddenLayer: pt.Tensor = pt.tanh(self.innerConnections(input))
+        return self.outerConnections(hiddenLayer)
     def _GenerateNextInputLayer(self, index: int, previousInternalInput: pt.Tensor, previousExternalInput: pt.Tensor) \
             -> pt.Tensor:
         '''
@@ -147,8 +77,6 @@ class OldNetworkDef(nn.Module):
         return output
 
 
-
-
     def GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
         '''
         Generates a tensor for classifiers (one correct neuron, rest 0)
@@ -172,3 +100,16 @@ class OldNetworkDef(nn.Module):
         output = np.asarray(output)
         self.testing = pt.Tensor(output)
         return self.testing
+
+def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, lossFunction, numberEpochs=200, learningRate=0.0001):
+
+    optimizer = optim.SGD(net.parameters(), lr=learningRate)
+
+    for epochI in range(numberEpochs):
+        #out = pt.transpose(net(trainingData), 0, 1) #TODO this is a mess
+        #lossI = lossFunction(testingData, out)
+        lossI = lossFunction(testingData, net(trainingData))
+        optimizer.zero_grad()
+        lossI.backward()
+        optimizer.step()  # update NN weights
+        print(lossI.item())
