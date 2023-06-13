@@ -4,7 +4,7 @@ from torch import nn
 from torch import optim
 import copy
 
-class NetworkDef(nn.Module):
+class OldNetworkDef(nn.Module):
 
     numberOfLayers: int = 0  # number of layers in the network
     layerOutSizes: list[int]  # The number of neurons each layer outputs
