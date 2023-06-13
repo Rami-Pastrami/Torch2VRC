@@ -4,7 +4,7 @@ from torch import nn
 from torch import optim
 import copy
 
-class OldNetworkDef(nn.Module):
+class NetworkDef(nn.Module):
 
     numberOfLayers: int = 0  # number of layers in the network
     layerOutSizes: list[int]  # The number of neurons each layer outputs
@@ -26,7 +26,7 @@ class OldNetworkDef(nn.Module):
         self.innerConnections = nn.Linear(numberInputNeurons, numberHiddenNeurons)
         self.outerConnections = nn.Linear(numberHiddenNeurons, numberOutputNeurons)
 
-    def Forward(self, input: pt.Tensor):
+    def forward(self, input: pt.Tensor):
         hiddenLayer: pt.Tensor = pt.tanh(self.innerConnections(input))
         return self.outerConnections(hiddenLayer)
     def _GenerateNextInputLayer(self, index: int, previousInternalInput: pt.Tensor, previousExternalInput: pt.Tensor) \
@@ -101,9 +101,10 @@ class OldNetworkDef(nn.Module):
         self.testing = pt.Tensor(output)
         return self.testing
 
-def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, lossFunction, numberEpochs=200, learningRate=0.0001):
+def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=200, learningRate=0.0001):
 
     optimizer = optim.SGD(net.parameters(), lr=learningRate)
+    lossFunction = nn.MSELoss()
 
     for epochI in range(numberEpochs):
         #out = pt.transpose(net(trainingData), 0, 1) #TODO this is a mess

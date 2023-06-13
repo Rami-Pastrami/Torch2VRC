@@ -5,7 +5,7 @@ from Torch2VRC import NetClasses
 importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 # separate data into separate channels by color, and prep them for importing into PyTorch
 
-RGB_Net = NetClasses.NetworkDef(["Linear"], [5], [0], [3], ["TanH"])
+RGB_Net = NetClasses.NetworkDef(5, 10, 3)
 
 
 # separate into training and testing sets
@@ -18,8 +18,8 @@ testing = RGB_Net.GenerateClassifierTestingTensor(answerCounts)
 trainingSet = RGB_Net.GenerateClassifierTrainingTensors(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
 
 # train model
-RGB_Net.Train()
 
+NetClasses.Train(RGB_Net, trainingSet[0], testing)
 
 
 print("convinient breakpoint")
