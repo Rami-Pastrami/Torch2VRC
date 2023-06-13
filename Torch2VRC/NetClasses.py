@@ -20,6 +20,7 @@ class NetworkDef(nn.Module):
 
     _mergingLayers: list[bool]  # true where a layer has merging input neurons
 
+    # TODO Add hidden layers
     def __init__(self, layerTypes: list[str], layerOutSizes: list[int], layerInSizeBeforeAdditional: list[int],
                  layerInputSizes: list[int], layerActivationFuncs: list, lossFunc: str="MSELoss"):
         '''
