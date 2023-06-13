@@ -101,7 +101,7 @@ class NetworkDef(nn.Module):
         self.testing = pt.Tensor(output)
         return self.testing
 
-def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=200, learningRate=0.0001):
+def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=8000, learningRate=0.0001):
 
     optimizer = optim.SGD(net.parameters(), lr=learningRate)
     lossFunction = nn.MSELoss()
