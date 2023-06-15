@@ -44,17 +44,18 @@ class NNDataBuilder():
         numInputLayers: int = 0
 
         for mappings in keyMappings:
-
             if mappings == None:
                 # No input for this layer
                 output.append(None)
                 continue
 
+            numInputLayers = numInputLayers + 1
+
             arrays: list or np.ndarray = []
             for mapping in mappings:
-                numInputLayers = numInputLayers + 1
                 arrays.append(np.asarray(trainingData[mapping]))
             arrays = np.vstack(arrays)
+
             output.append(pt.Tensor(arrays))
 
         self.trainingSet = output
