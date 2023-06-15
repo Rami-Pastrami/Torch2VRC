@@ -15,7 +15,7 @@ class NNDataBuilder():
 
         self.answerLookup = answerLookup
         _ , answerCounts = self.GenerateTestingData(importedData)
-        self.trainingData, self.numInputs = self. (importedData, answerLookup)
+        self.trainingData, self.numInputs = self.GenerateClassifierTrainingTensors(importedData, answerLookup)
         self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
 
     def GenerateTestingData(self, totalData: dict) -> tuple:
