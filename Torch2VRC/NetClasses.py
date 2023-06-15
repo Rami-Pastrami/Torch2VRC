@@ -7,17 +7,18 @@ import copy
 class NNDataBuilder():
 
     answerLookup: list  # string list whose index corresponds to output neuron
-    trainingData: list[pt.Tensor]  # testing input data used for training, in order of usage at location of inputs
+    trainingData: list[pt.Tensor or None]  # testing input data used for training, in order of usage at location of inputs
     testingData: pt.Tensor  # testing output data used for training
+    numInputs: int  # the number of separate input layers
 
+    def __init__(self,  importedData: dict, answerLookup: list):
 
-    def __init__(self,  importedData: dict):
-
-        self.answerLookup, answerCounts = self.GenerateTestingData(importedData)
-        self.trainingData = self.GenerateClassifierTrainingTensors(importedData, self.answerLookup)
+        self.answerLookup = answerLookup
+        _ , answerCounts = self.GenerateTestingData(importedData)
+        self.trainingData, self.numInputs = self. (importedData, answerLookup)
         self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
 
-    def GenerateTestingData(totalData: dict) -> tuple:
+    def GenerateTestingData(self, totalData: dict) -> tuple:
         '''
         Generates inputs required for generating testing data for neural network right from Log output
         :param totalData: Log file output
@@ -30,16 +31,17 @@ class NNDataBuilder():
             counts.append(len(totalData[ans]))
         return (answers, counts)
 
-    def GenerateClassifierTrainingTensors(self, trainingData: dict, keyMappings: list[list or None]) -> list:
+    def GenerateClassifierTrainingTensors(self, trainingData: dict, keyMappings: list[list or None]) -> tuple[list, int]:
         '''
         Converts input data into training Tensors indexed to their matching input layer
         :param trainingData: generated training data dict
         :param keyMappings: list of lists matching the training data keys to their position within and as input layers.
         Example: [[keya1, keya2], None, [keyb1, keyb2]] maps 4 keys to layers 1 and 3, assuming 2 possible outputs a & b
 
-        :return: list of tensors (and nones) indexes to where they will be input
+        :return: list of tensors (and nones) indexes to where they will be input, number of input layers
         '''
         output: list = []
+        numInputLayers: int = 0
 
         for mappings in keyMappings:
 
@@ -50,12 +52,13 @@ class NNDataBuilder():
 
             arrays: list or np.ndarray = []
             for mapping in mappings:
+                numInputLayers = numInputLayers + 1
                 arrays.append(np.asarray(trainingData[mapping]))
             arrays = np.vstack(arrays)
             output.append(pt.Tensor(arrays))
 
         self.trainingSet = output
-        return output
+        return (output, numInputLayers)
 
     def GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
         '''
@@ -81,16 +84,72 @@ class NNDataBuilder():
         self.testing = pt.Tensor(output)
         return self.testing
 
+    # Not the best way to do this, but due to how pytorch works some things get weird
+    def Train(self, neuralNetwork, numberEpochs=8000, learningRate=0.0001):
+
+        optimizer = optim.SGD(neuralNetwork.parameters(), lr=learningRate)
+        lossFunction = nn.MSELoss()
+        inputs: list = self._returnListWithoutNones(self.trainingData)
+
+        # This is why C like languages are better
+        if self.numInputs == 1:
+            return self._Train1Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0])
+        if self.numInputs == 2:
+            return self._Train2Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1])
+        if self.numInputs == 3:
+            return self._Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
+
+        raise Exception("Unaccounted for number of inputs given!")
+
+    def _Train1Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
+
+        for epochI in range(numEpochs):
+            lossI = lossFunction(self.testingData, net(input1))
+            optimizer.zero_grad()
+            lossI.backward()
+            optimizer.step()
+            print(lossI.item())
+        print("Training Complete!")
+        return net
+
+    def _Train2Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor):
+
+        for epochI in range(numEpochs):
+            lossI = lossFunction(self.testingData, net(input1, input2))
+            optimizer.zero_grad()
+            lossI.backward()
+            optimizer.step()
+            print(lossI.item())
+        print("Training Complete!")
+        return net
+
+    def _Train3Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor, input3: pt.Tensor):
+
+        for epochI in range(numEpochs):
+            lossI = lossFunction(self.testingData, net(input1, input2, input3))
+            optimizer.zero_grad()
+            lossI.backward()
+            optimizer.step()
+            print(lossI.item())
+        print("Training Complete!")
+        return net
+
+    def _returnListWithoutNones(self, input) -> list:
+
+        output: list = []
+        for e in input:
+            if e is None: continue
+            output.append(e)
+        return output
 
 
+# Example separate Train Function
 def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=8000, learningRate=0.0001):
 
     optimizer = optim.SGD(net.parameters(), lr=learningRate)
     lossFunction = nn.MSELoss()
 
     for epochI in range(numberEpochs):
-        #out = pt.transpose(net(trainingData), 0, 1) #TODO this is a mess
-        #lossI = lossFunction(testingData, out)
         lossI = lossFunction(testingData, net(trainingData))
         optimizer.zero_grad()
         lossI.backward()
