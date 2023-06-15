@@ -4,50 +4,31 @@ from torch import nn
 from torch import optim
 import copy
 
-class NetworkDef(nn.Module):
+class NNDataBuilder():
 
-    numberOfLayers: int = 0  # number of layers in the network
-    layerOutSizes: list[int]  # The number of neurons each layer outputs
-    layerInSizes: list[int]  # The number of neurons each layer receives
-    # (as a sum of given input size and additional input data sizes)
-    layerInputSizes: list[int]  # number of external input neurons coming it at each layer
+    answerLookup: list  # string list whose index corresponds to output neuron
+    trainingData: list[pt.Tensor]  # testing input data used for training, in order of usage at location of inputs
+    testingData: pt.Tensor  # testing output data used for training
 
-    layerActivationFunctions: list  # activation function of a layer
-    layerTypes: list  # whether layer is linear, rnn, etc
 
-    trainingSet: list
-    testing: pt.Tensor
+    def __init__(self,  importedData: dict):
 
-    _mergingLayers: list[bool]  # true where a layer has merging input neurons
+        self.answerLookup, answerCounts = self.GenerateTestingData(importedData)
+        self.trainingData = self.GenerateClassifierTrainingTensors(importedData, self.answerLookup)
+        self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
 
-    def __init__(self, numberInputNeurons: int, numberHiddenNeurons: int, numberOutputNeurons: int):
-
-        super().__init__()
-        self.innerConnections = nn.Linear(numberInputNeurons, numberHiddenNeurons)
-        self.outerConnections = nn.Linear(numberHiddenNeurons, numberOutputNeurons)
-
-    def forward(self, input: pt.Tensor):
-        hiddenLayer: pt.Tensor = pt.tanh(self.innerConnections(input))
-        return self.outerConnections(hiddenLayer)
-    def _GenerateNextInputLayer(self, index: int, previousInternalInput: pt.Tensor, previousExternalInput: pt.Tensor) \
-            -> pt.Tensor:
+    def GenerateTestingData(totalData: dict) -> tuple:
         '''
-        Generates the next input layer (or the NN output)
-        :param index: the layer index
-        :param previousInternalInput: the layer from the previous NN layer, may be None
-        :param previousExternalInput: input from external input neurons, may be None
-        :return: The Tensor to be passed to the next layer (or output entirely)
+        Generates inputs required for generating testing data for neural network right from Log output
+        :param totalData: Log file output
+        :return: Tuple(ordered list of answers) & (corresponding count of each answer in the set)
         '''
-        if index == 0:
-            # Nothing to merge if this is the first layer!
-            return previousExternalInput
 
-        if(self._mergingLayers[index]):
-            # we need to merge an input layer
-            return pt.cat((previousInternalInput, previousExternalInput), 0)
-
-        # Nothing to merge!
-        return previousInternalInput
+        answers: list = list(totalData.keys())
+        counts: list = []
+        for ans in answers:
+            counts.append(len(totalData[ans]))
+        return (answers, counts)
 
     def GenerateClassifierTrainingTensors(self, trainingData: dict, keyMappings: list[list or None]) -> list:
         '''
@@ -76,7 +57,6 @@ class NetworkDef(nn.Module):
         self.trainingSet = output
         return output
 
-
     def GenerateClassifierTestingTensor(self, numberElementsPerAnswer: list[int]) -> pt.Tensor:
         '''
         Generates a tensor for classifiers (one correct neuron, rest 0)
@@ -100,6 +80,8 @@ class NetworkDef(nn.Module):
         output = np.asarray(output)
         self.testing = pt.Tensor(output)
         return self.testing
+
+
 
 def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=8000, learningRate=0.0001):
 
