@@ -36,7 +36,9 @@ weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 input1 = np.asarray(RGB_Builder.trainingData[0])[0, :]
 ouput1 = np.asarray(RGB_Builder.testingData)[0, :]
 
-print("Network result directly: ", str(RGB_Net(RGB_Builder.trainingData[0])[0, :]))
-
+print("Network results directly: ")
+print(str(RGB_Net(RGB_Builder.trainingData[0])[0, :]))
+print(str(RGB_Net(RGB_Builder.trainingData[0])[1, :]))
+print(str(RGB_Net(RGB_Builder.trainingData[0])[2, :]))
 
 print("convinient breakpoint")

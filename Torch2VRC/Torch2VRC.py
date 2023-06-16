@@ -86,7 +86,7 @@ class Torch_VRC_Helper():
         return self.testing
 
     # Not the best way to do this, but due to how pytorch works some things get weird
-    def Train(self, neuralNetwork, numberEpochs=8000, learningRate=0.0001):
+    def Train(self, neuralNetwork, numberEpochs=2000, learningRate=0.0001):
 
         '''
         Trains the network, then returns it
@@ -172,7 +172,7 @@ class Torch_VRC_Helper():
 
 
 # Example separate Train Function. Otherwise unused
-def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=8000, learningRate=0.0001):
+def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=2000, learningRate=0.0001):
 
     optimizer = optim.SGD(net.parameters(), lr=learningRate)
     lossFunction = nn.MSELoss()
