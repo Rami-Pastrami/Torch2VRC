@@ -1,5 +1,6 @@
 from torch import nn
 import torch as pt
+import numpy as np
 
 from Torch2VRC import Loading
 from Torch2VRC import Torch2VRC
@@ -31,6 +32,11 @@ RGB_Net = RGB_Builder.Train(RGB_Net)
 # Export Data
 weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 
+# verification (only to verify answer is sensible
+input1 = np.asarray(RGB_Builder.trainingData[0])[0, :]
+ouput1 = np.asarray(RGB_Builder.testingData)[0, :]
+
+print("Network result directly: ", str(RGB_Net(RGB_Builder.trainingData[0])[0, :]))
 
 
 print("convinient breakpoint")
