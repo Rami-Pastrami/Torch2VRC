@@ -2,7 +2,7 @@ from torch import nn
 import torch as pt
 
 from Torch2VRC import Loading
-from Torch2VRC import NNWorker
+from Torch2VRC import Torch2VRC
 
 # Actual Network Model
 class RGB_NN(nn.Module):
@@ -20,7 +20,7 @@ class RGB_NN(nn.Module):
 importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 
 # Init NN Builder
-RGB_Builder = NNWorker.NNDataBuilder(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
+RGB_Builder = Torch2VRC.Torch_VRC_Helper(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
 
 # Init NN Network
 RGB_Net = RGB_NN(10)
@@ -30,5 +30,7 @@ RGB_Net = RGB_Builder.Train(RGB_Net)
 
 # Export Data
 weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
+
+
 
 print("convinient breakpoint")

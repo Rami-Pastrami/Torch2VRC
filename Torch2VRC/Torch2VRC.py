@@ -4,7 +4,7 @@ from torch import nn
 from torch import optim
 import copy
 
-class NNDataBuilder():
+class Torch_VRC_Helper():
 
     answerLookup: list  # string list whose index corresponds to output neuron
     trainingData: list[pt.Tensor or None]  # testing input data used for training, in order of usage at location of inputs
