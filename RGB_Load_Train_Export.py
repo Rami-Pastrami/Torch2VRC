@@ -27,18 +27,30 @@ RGB_Builder = Torch2VRC.Torch_VRC_Helper(importedLog, [["red", "green", "blue", 
 RGB_Net = RGB_NN(10)
 
 # Train
-RGB_Net = RGB_Builder.Train(RGB_Net)
+RGB_Net = RGB_Builder.Train(RGB_Net, numberEpochs=4000)
 
 # Export Data
 weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 
-# verification (only to verify answer is sensible
-input1 = np.asarray(RGB_Builder.trainingData[0])[0, :]
-ouput1 = np.asarray(RGB_Builder.testingData)[0, :]
-
+# verification (only to verify answer is sensible)
 print("Network results directly: ")
 print(str(RGB_Net(RGB_Builder.trainingData[0])[0, :]))
 print(str(RGB_Net(RGB_Builder.trainingData[0])[1, :]))
 print(str(RGB_Net(RGB_Builder.trainingData[0])[2, :]))
+
+def pythonicNetwork_RGB(weightsIn: dict, biasesIn: dict, input: np.ndarray) -> np.ndarray:
+
+    hiddenLayer: np.ndarray = np.tanh((weightsIn["innerConnections"] @ input) + biasesIn["innerConnections"])
+    output: np.ndarray = (weightsIn["outerConnections"] @ hiddenLayer)  + biasesIn["outerConnections"]
+    return output
+
+print("Pythonic Emulation: ")
+print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[0, :])))
+print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[1, :])))
+print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
+
+
+
+
 
 print("convinient breakpoint")
