@@ -110,7 +110,24 @@ class NNDataBuilder():
 
         raise Exception("Unaccounted for number of inputs given!")
 
+    def ExportNetworkLayersAsNumpy(self, network) -> tuple[dict, dict]:
 
+        '''
+        Outputs numpy arrays that make up the inputted neural network
+        :param network: input network
+        :return: dict of weights (name: data), dict of biases (name: data)
+        '''
+
+        weights: dict = {}
+        biases: dict = {}
+        data: list = list(network.named_modules())
+
+        # shitty loop to skip the first index
+        for i in range(1, len(data)):
+            weights[(data[i][0])] = data[i][1].weight.detach().numpy()
+            biases[(data[i][0])] = data[i][1].bias.detach().numpy()
+
+        return weights, biases
 
     def _Train1Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
 

@@ -28,5 +28,7 @@ RGB_Net = RGB_NN(10)
 # Train
 RGB_Net = RGB_Builder.Train(RGB_Net)
 
+# Export Data
+weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 
 print("convinient breakpoint")
