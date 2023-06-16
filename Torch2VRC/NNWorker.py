@@ -88,6 +88,14 @@ class NNDataBuilder():
     # Not the best way to do this, but due to how pytorch works some things get weird
     def Train(self, neuralNetwork, numberEpochs=8000, learningRate=0.0001):
 
+        '''
+        Trains the network, then returns it
+        :param neuralNetwork: network you wish to train
+        :param numberEpochs: "amount" of training to do. Beware of overfitting!
+        :param learningRate: "speed" to learn at
+        :return:
+        '''
+
         optimizer = optim.SGD(neuralNetwork.parameters(), lr=learningRate)
         lossFunction = nn.MSELoss()
         inputs: list = self._returnListWithoutNones(self.trainingData)
@@ -101,6 +109,8 @@ class NNDataBuilder():
             return self._Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
 
         raise Exception("Unaccounted for number of inputs given!")
+
+
 
     def _Train1Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
 
@@ -144,7 +154,7 @@ class NNDataBuilder():
         return output
 
 
-# Example separate Train Function
+# Example separate Train Function. Otherwise unused
 def Train(net, trainingData: pt.Tensor, testingData: pt.Tensor, numberEpochs=8000, learningRate=0.0001):
 
     optimizer = optim.SGD(net.parameters(), lr=learningRate)
