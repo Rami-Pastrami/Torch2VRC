@@ -32,25 +32,26 @@ RGB_Net = RGB_Builder.Train(RGB_Net, numberEpochs=4000)
 # Export Data
 weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 
-# verification (only to verify answer is sensible)
-print("Network results directly: ")
-print(str(RGB_Net(RGB_Builder.trainingData[0])[0, :]))
-print(str(RGB_Net(RGB_Builder.trainingData[0])[1, :]))
-print(str(RGB_Net(RGB_Builder.trainingData[0])[2, :]))
+# # verification (only to verify answer is sensible)
+# print("Network results directly: ")
+# print(str(RGB_Net(RGB_Builder.trainingData[0])[0, :]))
+# print(str(RGB_Net(RGB_Builder.trainingData[0])[1, :]))
+# print(str(RGB_Net(RGB_Builder.trainingData[0])[2, :]))
+#
+# def pythonicNetwork_RGB(weightsIn: dict, biasesIn: dict, input: np.ndarray) -> np.ndarray:
+#
+#     hiddenLayer: np.ndarray = np.tanh((weightsIn["innerConnections"] @ input) + biasesIn["innerConnections"])
+#     output: np.ndarray = (weightsIn["outerConnections"] @ hiddenLayer)  + biasesIn["outerConnections"]
+#     return output
+#
+# print("Pythonic Emulation: ")
+# print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[0, :])))
+# print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[1, :])))
+# print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
 
-def pythonicNetwork_RGB(weightsIn: dict, biasesIn: dict, input: np.ndarray) -> np.ndarray:
+#TODO save as PNGs
 
-    hiddenLayer: np.ndarray = np.tanh((weightsIn["innerConnections"] @ input) + biasesIn["innerConnections"])
-    output: np.ndarray = (weightsIn["outerConnections"] @ hiddenLayer)  + biasesIn["outerConnections"]
-    return output
-
-print("Pythonic Emulation: ")
-print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[0, :])))
-print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[1, :])))
-print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
-
-
-
+# Construct Shaders
 
 
 print("convinient breakpoint")

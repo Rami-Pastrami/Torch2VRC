@@ -4,6 +4,9 @@ import math
 from PIL import Image as im
 
 
+# given weight and bias dictionaries, exports dict of normalizations
+def ExportLayersBiases(weights: dict, biases: dict) -> dict:
+    pass
 
 def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: str) -> float:
 
