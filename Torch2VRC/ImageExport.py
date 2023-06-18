@@ -1,14 +1,25 @@
 # Responsible for exporting Pytorch weights as PNGs that can be read in via HLSL shaders
 import numpy as np
 import math
+from PIL import Image as im
 
 
 
+def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: str) -> float:
 
+    '''
+    Saves Layer Numpy Array as a PNG image, and returns the normalizer needed to rescale it to original values
+    :param inputArray: 2D numpy array from PyTorch itself
+    :param filePathName: file name / path to save PNG at
+    :return: normalizer value
+    '''
 
+    normalizer: float = _calculateNormalizer(inputArray)
+    RGBAArray: np.ndarray = _NumpyLayerToRGBAArray( inputArray, normalizer)
+    ImageData = im.fromarray(RGBAArray, mode="RGBA")
+    ImageData.save(filePathName)
 
-
-
+    return normalizer
 
 def _NumpyLayerToRGBAArray( layer: np.ndarray, normalizer: float) -> np.ndarray:
     '''
@@ -50,9 +61,8 @@ def _calculateNormalizer( layer: np.ndarray) -> float:
     Calculates the factor that entire matrix can be divided by such that the range is within 0 - 1.
     Process can be reversed via (input - 1.0) * normalizer
     :param layer:
-    :return: 
+    :return:
     '''
-
 
     maxVal: float = max(layer)
     minVal: float = min(layer)
