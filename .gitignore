@@ -1,3 +1,4 @@
 .idea
 venv
 Torch2VRC/__pycache__
+*.png
