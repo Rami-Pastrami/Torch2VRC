@@ -124,8 +124,15 @@ class Torch_VRC_Helper():
 
         # shitty loop to skip the first index
         for i in range(1, len(data)):
-            weights[(data[i][0])] = data[i][1].weight.detach().numpy()
-            biases[(data[i][0])] = data[i][1].bias.detach().numpy()
+            # also ensure all arrays are 2D
+            wData = data[i][1].weight.detach().numpy()
+            if wData.ndim == 1:  # stupid 1D hack
+                wData = np.expand_dims(wData, axis=0)
+            weights[(data[i][0])] = wData
+            bData = data[i][1].bias.detach().numpy()
+            if bData.ndim == 1:  # stupid 1D hack
+                bData = np.expand_dims(bData, axis=0)
+            biases[(data[i][0])] = bData
 
         return weights, biases
 

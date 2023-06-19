@@ -39,9 +39,6 @@ def _NumpyLayerToRGBAArray( layer: np.ndarray, normalizer: float) -> np.ndarray:
     :return: 3D array of same data, but split along R G B A channels
     '''
 
-    if layer.ndim == 1:  # stupid 1D hack
-        layer = np.expand_dims(layer, axis=0)
-
     lenY, lenX = np.shape(layer)
     output = np.zeros((lenY, lenX, 4)).astype('uint8')
 

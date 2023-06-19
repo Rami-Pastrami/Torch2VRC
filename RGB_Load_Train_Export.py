@@ -56,4 +56,4 @@ normalizers = ImageExport.ExportLayersBiases(weights, biases)
 # Construct Shaders
 
 
-print("convinient breakpoint")
+print("convenient breakpoint")
