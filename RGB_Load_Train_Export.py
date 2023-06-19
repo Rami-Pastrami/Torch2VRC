@@ -4,6 +4,7 @@ import numpy as np
 
 from Torch2VRC import Loading
 from Torch2VRC import Torch2VRC
+from Torch2VRC import ImageExport
 
 # Actual Network Model
 class RGB_NN(nn.Module):
@@ -49,7 +50,8 @@ weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 # print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[1, :])))
 # print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
 
-#TODO save as PNGs
+# Export layers as PNGs
+normalizers = ImageExport.ExportLayersBiases(weights, biases)
 
 # Construct Shaders
 

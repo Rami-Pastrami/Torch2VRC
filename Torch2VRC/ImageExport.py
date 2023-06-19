@@ -4,9 +4,16 @@ import math
 from PIL import Image as im
 
 
-# given weight and bias dictionaries, exports dict of normalizations
-def ExportLayersBiases(weights: dict, biases: dict) -> dict:
-    pass
+# given weight and bias dictionaries, saves each as a PNG and exports dict of normalizations
+def ExportLayersBiases(weights: dict, biases: dict, folderPath: str = "") -> dict:
+
+    normalizers: dict = {}
+    # Weights
+    for w in weights.keys():
+        normalizers[w] = ExportNPArrayAsPNG(weights[w], folderPath + w + ".png")
+    for b in biases.keys():
+        normalizers[b] = ExportNPArrayAsPNG(biases[b], folderPath + b + ".png")
+    return normalizers
 
 def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: str) -> float:
 
@@ -31,6 +38,9 @@ def _NumpyLayerToRGBAArray( layer: np.ndarray, normalizer: float) -> np.ndarray:
     :param normalizer: factor all elements are divided by such that the range remains within 0 and 1
     :return: 3D array of same data, but split along R G B A channels
     '''
+
+    if layer.ndim == 1:  # stupid 1D hack
+        layer = np.expand_dims(layer, axis=0)
 
     lenY, lenX = np.shape(layer)
     output = np.zeros((lenY, lenX, 4)).astype('uint8')
@@ -67,8 +77,8 @@ def _calculateNormalizer( layer: np.ndarray) -> float:
     :return:
     '''
 
-    maxVal: float = max(layer)
-    minVal: float = min(layer)
+    maxVal: float = np.max(layer)
+    minVal: float = np.max(layer)
 
     output: float
     if abs(minVal) > maxVal:
