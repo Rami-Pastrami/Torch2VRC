@@ -1,5 +1,9 @@
 import numpy as np
 
+
+
+
+
 class NNRect():
 
     width: int
@@ -21,6 +25,12 @@ class NNRect():
         return self.width * self.height
 
     area: int = property(get_area)
+
+
+
+
+
+
 
 
 
