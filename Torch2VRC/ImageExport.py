@@ -10,9 +10,9 @@ def ExportLayersBiases(weights: dict, biases: dict, folderPath: str = "") -> dic
     normalizers: dict = {}
     # Weights
     for w in weights.keys():
-        normalizers[w] = ExportNPArrayAsPNG(weights[w], folderPath + w + "_WEIGHTS.png")
+        normalizers[w + "_Weights"] = ExportNPArrayAsPNG(weights[w], folderPath + w + "_WEIGHTS.png")
     for b in biases.keys():
-        normalizers[b] = ExportNPArrayAsPNG(biases[b], folderPath + b + "_BIASES.png")
+        normalizers[b + "_Biases"] = ExportNPArrayAsPNG(biases[b], folderPath + b + "_BIASES.png")
     return normalizers
 
 def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: str) -> float:

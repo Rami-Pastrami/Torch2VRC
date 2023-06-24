@@ -5,6 +5,7 @@ import numpy as np
 from Torch2VRC import Loading
 from Torch2VRC import Torch2VRC
 from Torch2VRC import ImageExport
+from Torch2VRC import CompleteExport
 
 # Actual Network Model
 class RGB_NN(nn.Module):
@@ -51,9 +52,12 @@ weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 # print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
 
 # Export layers as PNGs
-normalizers = ImageExport.ExportLayersBiases(weights, biases)
+#normalizers = ImageExport.ExportLayersBiases(weights, biases)
 
 # Construct Shaders
 
+#print(normalizers)
+
+A = CompleteExport.Layer_Linear(weights["innerConnections"], biases["innerConnections"], "a", "n")
 
 print("convenient breakpoint")
