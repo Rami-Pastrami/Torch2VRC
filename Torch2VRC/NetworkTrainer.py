@@ -10,13 +10,20 @@ class Torch_VRC_Helper():
     trainingData: list[pt.Tensor or None]  # testing input data used for training, in order of usage at location of inputs
     testingData: pt.Tensor  # testing output data used for training
     numInputLayers: int  # the number of separate input layers
+    connectionConnectionsAndActivations: dict  # keys are layer names, data are futher dictionaries where 'i' is an
+    # array of input connections, 'o' is an array of output connections, and 'activation' is optional activation type
+    layerTypes: dict  # key matched layer name to type (1D, float (array), etc)
 
-    def __init__(self,  importedData: dict, answerLookup: list):
+
+    def __init__(self,  importedData: dict, answerLookup: list, connectionConnectionsAndActivations: dict,
+                 layerTypes: dict):
 
         self.answerLookup = answerLookup
         _ , answerCounts = self.GenerateTestingData(importedData)
         self.trainingData, self.numInputLayers = self.GenerateClassifierTrainingTensors(importedData, answerLookup)
         self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
+        self.connectionConnectionsAndActivations = connectionConnectionsAndActivations
+        self.layerTypes = layerTypes
 
     def GenerateTestingData(self, totalData: dict) -> tuple:
         '''
@@ -110,6 +117,7 @@ class Torch_VRC_Helper():
 
         raise Exception("Unaccounted for number of inputs given!")
 
+    #TODO scrap this
     def ExportNetworkLayersAsNumpy(self, network) -> tuple[dict, dict]:
 
         '''
@@ -137,8 +145,7 @@ class Torch_VRC_Helper():
         return weights, biases
 
     # TODO temporary, switch to a tree structure later!
-    def ExportNetworkLayersNetworkTree(self, initialLayer, network, connectionIOAs: dict,
-                                       layerTypes: dict) -> list:
+    def ExportNetworkLayersNetworkTree(self, initialLayer, network) -> list:
 
         def _GetLayerType(specificLayer) -> str:
             ''' Stupid cursed method for finding the layer connection type '''
@@ -158,23 +165,23 @@ class Torch_VRC_Helper():
             if layerType == "Linear":
                 # Get prereqs for connection object
                 weights = connectionData.weight.detach().numpy()
-                bias = connectionData.bias.detach().numpy().transpose() # transpose so it fits better in CRT
-                inputs: list[str] = connectionIOAs[connectionName]["i"]
-                outputs: list[str] = connectionIOAs[connectionName]["o"]
+                bias = connectionData.bias.detach().numpy().transpose()  # transpose so it fits better in CRT
+                inputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["i"]
+                outputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["o"]
                 inputSize: int = connectionData.in_features
                 outputSize: int = connectionData.out_features
                 activation: str = "none"
-                if "activation" in connectionIOAs[connectionName]:
-                    activation = connectionIOAs[connectionName]["activation"]
+                if "activation" in self.connectionConnectionsAndActivations[connectionName]:
+                    activation = self.connectionConnectionsAndActivations[connectionName]["activation"]
                 connection = LAC.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
                     inputSize, outputSize)
 
                 # get prereqs for output layer object
                 outputLayer = None
-                if layerTypes[connectionName] == "float":
+                if self.layerTypes[connectionName] == "float":
                     # input is a float array
                     outputLayer = LAC.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
-                elif layerTypes[connectionName] == "1D":
+                elif self.layerTypes[connectionName] == "1D":
                     # input is another 1D crt
                     priorConnections: list = [connectionName]  # temp, replace with tree stuff later
                     outputLayer = LAC.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
