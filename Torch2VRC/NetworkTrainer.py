@@ -146,6 +146,12 @@ class Torch_VRC_Helper():
 
     # TODO temporary, switch to a tree structure later!
     def ExportNetworkLayersNetworkTree(self, initialLayer, network) -> list:
+        '''
+        Outputs structure describing how network is wired together
+        :param initialLayer: initial layer object, using class from LayersAndConnections
+        :param network: trained PyTorch network
+        :return:
+        '''
 
         def _GetLayerType(specificLayer) -> str:
             ''' Stupid cursed method for finding the layer connection type '''
