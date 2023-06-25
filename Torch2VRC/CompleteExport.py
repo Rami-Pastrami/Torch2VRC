@@ -1,4 +1,5 @@
 import numpy as np
+import chevron as cr
 from ImageExport import ExportNPArrayAsPNG
 
 class Layer_Linear():
@@ -28,7 +29,7 @@ class Layer_Linear():
     def ExportConnectionData(self, folderPath: str) -> dict:
         '''
         Exports Linear Weights and Bias as PNGs into the specified folder
-        :param folderPath: folder export path ending with /
+        :param folderPath: Folder export path ending with /
         :return: dict containing normalizations for weights and bias
         '''
         output: dict = {}
