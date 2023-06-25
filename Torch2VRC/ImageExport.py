@@ -6,18 +6,18 @@ from pathlib import Path
 
 
 
-# given weight and bias dictionaries, saves each as a PNG and exports dict of normalizations
-def ExportLayersBiases(weights: dict, biases: dict, folderPath: str = "") -> dict:
+# # given weight and bias dictionaries, saves each as a PNG and exports dict of normalizations
+# def ExportLayersBiases(weights: dict, biases: dict, Path) -> dict:
+#
+#     normalizers: dict = {}
+#     # Weights
+#     for w in weights.keys():
+#         normalizers[w + "_Weights"] = ExportNPArrayAsPNG(weights[w], folderPath + w + "_WEIGHTS.png")
+#     for b in biases.keys():
+#         normalizers[b + "_Biases"] = ExportNPArrayAsPNG(biases[b], folderPath + b + "_BIASES.png")
+#     return normalizers
 
-    normalizers: dict = {}
-    # Weights
-    for w in weights.keys():
-        normalizers[w + "_Weights"] = ExportNPArrayAsPNG(weights[w], folderPath + w + "_WEIGHTS.png")
-    for b in biases.keys():
-        normalizers[b + "_Biases"] = ExportNPArrayAsPNG(biases[b], folderPath + b + "_BIASES.png")
-    return normalizers
-
-def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: str) -> float:
+def ExportNPArrayAsPNGAndGetNormalizer(inputArray: np.ndarray, filePathName: Path) -> float:
 
     '''
     Saves Layer Numpy Array as a PNG image, and returns the normalizer needed to rescale it to original values
@@ -27,7 +27,7 @@ def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: str) -> float:
     '''
 
     normalizer: float = _calculateNormalizer(inputArray)
-    RGBAArray: np.ndarray = _NumpyLayerToRGBAArray( inputArray, normalizer)
+    RGBAArray: np.ndarray = _NumpyLayerToRGBAArray(inputArray, normalizer)
     ImageData = im.fromarray(RGBAArray, mode="RGBA")
     ImageData.save(filePathName)
 
