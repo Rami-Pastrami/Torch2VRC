@@ -82,8 +82,8 @@ class Torch_VRC_Helper():
                 output.append(GenerateSubIndexArray(aWidth, i))
 
         output = np.asarray(output)
-        self.testing = pt.Tensor(output)
-        return self.testing
+        testing = pt.Tensor(output)
+        return testing
 
     # Not the best way to do this, but due to how pytorch works some things get weird
     def Train(self, neuralNetwork, numberEpochs=2000, learningRate=0.0001):

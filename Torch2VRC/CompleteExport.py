@@ -1,6 +1,7 @@
 import numpy as np
 import chevron as cr
 from Torch2VRC.ImageExport import ExportNPArrayAsPNG
+from Torch2VRC.NetworkTrainer import Torch_VRC_Helper
 from pathlib import Path
 
 class Layer_Linear():
@@ -44,10 +45,11 @@ class Layer_Linear():
         # TODO CRT generation
 
 
-def ExportNetworkToVRC(pathToAssetsFolder: Path, trainedNetwork,
+def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork,
                        unityAssetPathToNetwork: str = "Assets/Rami-Pastrami/VRC_NN_RGBTest/Network"):
 
     # Load prereq info into vars
+    weights, biases = helper.ExportNetworkLayersAsNumpy(trainedNetwork)
 
 
 
