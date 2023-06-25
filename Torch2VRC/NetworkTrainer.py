@@ -2,20 +2,20 @@ import numpy as np
 import torch as pt
 from torch import nn
 from torch import optim
-import copy
+import LayersAndConnections as LAC
 
 class Torch_VRC_Helper():
 
     answerLookup: list  # string list whose index corresponds to output neuron
     trainingData: list[pt.Tensor or None]  # testing input data used for training, in order of usage at location of inputs
     testingData: pt.Tensor  # testing output data used for training
-    numInputs: int  # the number of separate input layers
+    numInputLayers: int  # the number of separate input layers
 
     def __init__(self,  importedData: dict, answerLookup: list):
 
         self.answerLookup = answerLookup
         _ , answerCounts = self.GenerateTestingData(importedData)
-        self.trainingData, self.numInputs = self.GenerateClassifierTrainingTensors(importedData, answerLookup)
+        self.trainingData, self.numInputLayers = self.GenerateClassifierTrainingTensors(importedData, answerLookup)
         self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
 
     def GenerateTestingData(self, totalData: dict) -> tuple:
@@ -101,11 +101,11 @@ class Torch_VRC_Helper():
         inputs: list = self._returnListWithoutNones(self.trainingData)
 
         # This is why C like languages are better
-        if self.numInputs == 1:
+        if self.numInputLayers == 1:
             return self._Train1Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0])
-        if self.numInputs == 2:
+        if self.numInputLayers == 2:
             return self._Train2Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1])
-        if self.numInputs == 3:
+        if self.numInputLayers == 3:
             return self._Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
 
         raise Exception("Unaccounted for number of inputs given!")
@@ -135,6 +135,60 @@ class Torch_VRC_Helper():
             biases[(data[i][0])] = bData
 
         return weights, biases
+
+    # TODO temporary, switch to a tree structure later!
+    def ExportNetworkLayersNetworkTree(self, initialLayer, network, connectionIOAs: dict,
+                                       layerTypes: dict) -> list:
+
+        def _GetLayerType(specificLayer) -> str:
+            ''' Stupid cursed method for finding the layer connection type '''
+            layerDef: str = str(specificLayer)
+            return layerDef[0: layerDef.find("(")]
+
+        data: list = list(network.named_modules())
+        output: list = [initialLayer]
+
+        # shitty loop to skip the first index
+        for i in range(1, len(data)):
+            # define base dict structure
+            connectionName: str = data[i][0]
+            connectionData = data[i][1]
+            layerType = _GetLayerType(connectionData)
+
+            if layerType == "Linear":
+                # Get prereqs for connection object
+                weights = connectionData.weight.detach().numpy()
+                bias = connectionData.bias.detach().numpy().transpose() # transpose so it fits better in CRT
+                inputs: list[str] = connectionIOAs[connectionName]["i"]
+                outputs: list[str] = connectionIOAs[connectionName]["o"]
+                inputSize: int = connectionData.in_features
+                outputSize: int = connectionData.out_features
+                activation: str = "none"
+                if "activation" in connectionIOAs[connectionName]:
+                    activation = connectionIOAs[connectionName]["activation"]
+                connection = LAC.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
+                    inputSize, outputSize)
+
+                # get prereqs for output layer object
+                outputLayer = None
+                if layerTypes[connectionName] == "float":
+                    # input is a float array
+                    outputLayer = LAC.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
+                elif layerTypes[connectionName] == "1D":
+                    # input is another 1D crt
+                    priorConnections: list = [connectionName]  # temp, replace with tree stuff later
+                    outputLayer = LAC.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
+
+                output.append(connection)
+                output.append(outputLayer)
+                continue
+
+            raise Exception(f"Unsupported Layer Type {layerType}!")
+
+        return output
+
+
+
 
     def _Train1Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
 
