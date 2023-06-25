@@ -23,16 +23,31 @@ class RGB_NN(nn.Module):
 importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 
 # Init NN Builder
-RGB_Builder = NetworkTrainer.Torch_VRC_Helper(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
+possibleOutputs = [["red", "green", "blue", "magenta", "yellow"]]
+connectionDefs = {
+    "innerConnections": {
+        "i": "input",
+        "o": "hidden",
+        "activation": "tanh"
+    },
+    "outerConnections": {
+        "i": "hidden",
+        "o": "output",
+    }
+}
+layerDefs = {
+    "input": "uniformFloatArray",
+    "hidden": "1D",
+    "output": "1D"
+}
+
+RGB_Builder = NetworkTrainer.Torch_VRC_Helper(importedLog, possibleOutputs, connectionDefs, layerDefs)
 
 # Init NN Network
 RGB_Net = RGB_NN(10)
 
 # Train
 RGB_Net = RGB_Builder.Train(RGB_Net, numberEpochs=4000)
-
-# Export Data
-weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 
 # # verification (only to verify answer is sensible)
 # print("Network results directly: ")
@@ -52,12 +67,12 @@ weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 # print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
 
 # Export layers as PNGs
-#normalizers = ImageExport.ExportLayersBiases(weights, biases)
 
 # Construct Shaders
 
 #print(normalizers)
 
-A = CompleteExport.Layer_Linear(weights["innerConnections"], biases["innerConnections"], "inner", "a", "n")
+
+
 
 print("convenient breakpoint")
