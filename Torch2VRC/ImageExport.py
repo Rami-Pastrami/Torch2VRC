@@ -2,6 +2,8 @@
 import numpy as np
 import math
 from PIL import Image as im
+from pathlib import Path
+
 
 
 # given weight and bias dictionaries, saves each as a PNG and exports dict of normalizations

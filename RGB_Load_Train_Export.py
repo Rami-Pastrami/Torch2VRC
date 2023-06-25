@@ -3,7 +3,7 @@ import torch as pt
 import numpy as np
 
 from Torch2VRC import Loading
-from Torch2VRC import Torch2VRC
+from Torch2VRC import NetworkTrainer
 from Torch2VRC import ImageExport
 from Torch2VRC import CompleteExport
 
@@ -23,7 +23,7 @@ class RGB_NN(nn.Module):
 importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 
 # Init NN Builder
-RGB_Builder = Torch2VRC.Torch_VRC_Helper(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
+RGB_Builder = NetworkTrainer.Torch_VRC_Helper(importedLog, [["red", "green", "blue", "magenta", "yellow"]])
 
 # Init NN Network
 RGB_Net = RGB_NN(10)
@@ -58,6 +58,6 @@ weights, biases = RGB_Builder.ExportNetworkLayersAsNumpy(RGB_Net)
 
 #print(normalizers)
 
-A = CompleteExport.Layer_Linear(weights["innerConnections"], biases["innerConnections"], "a", "n")
+A = CompleteExport.Layer_Linear(weights["innerConnections"], biases["innerConnections"], "inner", "a", "n")
 
 print("convenient breakpoint")

@@ -1,6 +1,7 @@
 import numpy as np
 import chevron as cr
-from ImageExport import ExportNPArrayAsPNG
+from Torch2VRC.ImageExport import ExportNPArrayAsPNG
+from pathlib import Path
 
 class Layer_Linear():
 
@@ -41,3 +42,28 @@ class Layer_Linear():
         normalizations = self.ExportConnectionData(folderPath)
         # TODO shader data loader export
         # TODO CRT generation
+
+
+def ExportNetworkToVRC(pathToAssetsFolder: Path, trainedNetwork,
+                       unityAssetPathToNetwork: str = "Assets/Rami-Pastrami/VRC_NN_RGBTest/Network"):
+
+    # Load prereq info into vars
+
+
+
+    # Create Folders if not existant
+
+
+    # Copy over constant resource files
+
+
+    # Per connection layer
+    # Generate PNGs
+    # Generate JSONs detailing creation of Material, Data CRT
+
+    # Generate Network Shader
+    # Generate Custom Shader File
+    # Generate JSON for broad network, connection names
+
+    pass
+
