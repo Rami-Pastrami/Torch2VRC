@@ -4,11 +4,10 @@ from Torch2VRC.NetworkTrainer import Torch_VRC_Helper
 from pathlib import Path
 
 
-def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork,
-                       unityAssetPathToNetwork: str = "Assets/Rami-Pastrami/VRC_NN_RGBTest/Network"):
+def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork, networkName: str):
 
     # Load prereq info into vars
-    weights, biases = helper.ExportNetworkLayersAsNumpy(trainedNetwork)
+
 
 
 

@@ -2,7 +2,7 @@ import numpy as np
 import torch as pt
 from torch import nn
 from torch import optim
-import LayersAndConnections as LAC
+import Torch2VRC.LayersAndConnections as lac
 
 class Torch_VRC_Helper():
 
@@ -173,18 +173,18 @@ class Torch_VRC_Helper():
                 activation: str = "none"
                 if "activation" in self.connectionConnectionsAndActivations[connectionName]:
                     activation = self.connectionConnectionsAndActivations[connectionName]["activation"]
-                connection = LAC.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
-                    inputSize, outputSize)
+                connection = lac.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
+                                                   inputSize, outputSize)
 
                 # get prereqs for output layer object
                 outputLayer = None
                 if self.layerTypes[connectionName] == "uniformFloatArray":
                     # input is a float array
-                    outputLayer = LAC.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
+                    outputLayer = lac.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
                 elif self.layerTypes[connectionName] == "1D":
                     # input is another 1D crt
                     priorConnections: list = [connectionName]  # temp, replace with tree stuff later
-                    outputLayer = LAC.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
+                    outputLayer = lac.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
 
                 output.append(connection)
                 output.append(outputLayer)
