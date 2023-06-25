@@ -4,13 +4,14 @@ from Torch2VRC.NetworkTrainer import Torch_VRC_Helper
 from pathlib import Path
 import shutil
 
-def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork, networkName: str):
+def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork, networkName: str, initialLayer):
 
     # Load prereq info into vars
     sourceResources: Path = Path.cwd() / "Torch2VRC/Resources/"
 
     networkRoot: Path = pathToAssetsFolder / "Rami-Pastrami" / "Torch2VRC" / (networkName + "/")
     staticResources: Path = networkRoot / "Static_Resources/"
+    connectionPaths: dict = {}
 
 
     # Check if folders exist and confirm action
@@ -38,8 +39,26 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
 
     # Copy over constant resource files
     print("Copying Static Files...")
-    staticResources.mkdir(parents=True)
+    staticResources.mkdir(parents=True, exist_ok=True)
     shutil.copy(sourceResources / "NN_Common.cginc", staticResources / "NN_Common.cginc")
+
+    # Get Network Layout
+    networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
+
+    # Create connection folders
+    for connectionName in helper.connectionConnectionsAndActivations.keys():
+        connectionPaths[connectionName] = networkRoot / (connectionName + "/")
+        connectionPaths[connectionName].mkdir(parents=True, exist_ok=True)
+
+    # Create weight / biases for connections
+    for element in networkLayout:
+        # if not a connection type, skip
+        if type(element).__name__ != "Connection_Linear":
+            continue
+        element.ExportConnectionData(connectionPaths[element.connectionName])
+
+
+    print("a")
 
     # Per connection layer
     # Generate PNGs
