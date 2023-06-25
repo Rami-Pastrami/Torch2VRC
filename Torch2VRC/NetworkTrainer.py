@@ -12,7 +12,7 @@ class Torch_VRC_Helper():
     numInputLayers: int  # the number of separate input layers
     connectionConnectionsAndActivations: dict  # keys are layer names, data are futher dictionaries where 'i' is an
     # array of input connections, 'o' is an array of output connections, and 'activation' is optional activation type
-    layerTypes: dict  # key matched layer name to type (1D, float (array), etc)
+    layerTypes: dict  # key matched layer name to type (1D, uniformFloatArray, etc)
 
 
     def __init__(self,  importedData: dict, answerLookup: list, connectionConnectionsAndActivations: dict,
@@ -178,7 +178,7 @@ class Torch_VRC_Helper():
 
                 # get prereqs for output layer object
                 outputLayer = None
-                if self.layerTypes[connectionName] == "float":
+                if self.layerTypes[connectionName] == "uniformFloatArray":
                     # input is a float array
                     outputLayer = LAC.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
                 elif self.layerTypes[connectionName] == "1D":
