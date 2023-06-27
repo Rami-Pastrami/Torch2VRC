@@ -47,7 +47,7 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
 
     # Create connection folders
     for connectionName in helper.connectionConnectionsAndActivations.keys():
-        connectionPaths[connectionName] = networkRoot / (connectionName + "/")
+        connectionPaths[connectionName] = networkRoot / "Connections" / (connectionName + "/")
         connectionPaths[connectionName].mkdir(parents=True, exist_ok=True)
 
     # Create weight / biases for connections

@@ -184,10 +184,12 @@ class Torch_VRC_Helper():
 
                 # get prereqs for output layer object
                 outputLayer = None
-                if self.layerTypes[connectionName] == "uniformFloatArray":
+
+                if self.connectionConnectionsAndActivations[connectionName] == "uniformFloatArray":
+                #if self.layerTypes[connectionName] == "uniformFloatArray":
                     # input is a float array
                     outputLayer = lac.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
-                elif self.layerTypes[connectionName] == "1D":
+                elif self.connectionConnectionsAndActivations[connectionName] == "1D":
                     # input is another 1D crt
                     priorConnections: list = [connectionName]  # temp, replace with tree stuff later
                     outputLayer = lac.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)

@@ -1,11 +1,15 @@
 from torch import nn
 import torch as pt
 import numpy as np
+from pathlib import Path
 
 from Torch2VRC import Loading
 from Torch2VRC import NetworkTrainer
-from Torch2VRC import ImageExport
 from Torch2VRC import CompleteExport
+from Torch2VRC import LayersAndConnections
+
+ASSET_PATH: Path = Path("C:/Users/Rima/Documents/Git Stuff/VRC_NN_RGBTest/Assets/")
+
 
 # Actual Network Model
 class RGB_NN(nn.Module):
@@ -66,13 +70,13 @@ RGB_Net = RGB_Builder.Train(RGB_Net, numberEpochs=4000)
 # print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[1, :])))
 # print(str(pythonicNetwork_RGB(weights, biases, np.asarray(RGB_Builder.trainingData[0])[2, :])))
 
-# Export layers as PNGs
-
-# Construct Shaders
-
 #print(normalizers)
 
+# Define initial input Layer
+initialLayer = LayersAndConnections.Layer_FloatArray(3, "input", "_Udon_XYZ_In")
 
+# Export
+CompleteExport.ExportNetworkToVRC(ASSET_PATH, RGB_Builder, RGB_Net, "Coords2RGB", initialLayer)
 
 
 print("convenient breakpoint")

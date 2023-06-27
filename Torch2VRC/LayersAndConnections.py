@@ -60,10 +60,10 @@ class Connection_Linear():
         self.weight = weight
         self.outputNames = outputNames
         self.inputNames = inputNames
-        self.connectionName = connectionName
-        self.bias = bias
+        self.connectionName = connectionName  # turn sideways
+        self.bias = bias[:, np.newaxis]  # Turn 1D array sideways by making it a 1 wide 2D array
 
-        if (activation != "none") or (activation != "tanh"):
+        if (activation != "none") and (activation != "tanh"):
             raise Exception(f"Unknown activation type {activation}!")
 
         self.activation = activation
