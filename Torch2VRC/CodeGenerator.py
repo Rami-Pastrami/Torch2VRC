@@ -7,6 +7,10 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
     filePath: Path = unityNetworkFolderPath / "Editor_ImportNetwork.cs"
     with open(mustachePath, 'r') as template:
         generatedText = ch.render(template, {"NetworkName": networkName})
+
+        if filePath.exists():
+            filePath.unlink()
+
         Path.touch(filePath)
         newFile = open(filePath, 'w')
         _ = newFile.write(generatedText)

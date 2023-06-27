@@ -186,7 +186,6 @@ class Torch_VRC_Helper():
                 outputLayer = None
 
                 if self.connectionConnectionsAndActivations[connectionName] == "uniformFloatArray":
-                #if self.layerTypes[connectionName] == "uniformFloatArray":
                     # input is a float array
                     outputLayer = lac.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
                 elif self.connectionConnectionsAndActivations[connectionName] == "1D":

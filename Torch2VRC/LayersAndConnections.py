@@ -83,4 +83,4 @@ class Connection_Linear():
     def ExportFull(self, folderPath: Path):
         normalizations = self.ExportConnectionData(folderPath)
         # TODO shader data loader export
-        # TODO CRT generation
+        # TODO JSON for Material and CRT

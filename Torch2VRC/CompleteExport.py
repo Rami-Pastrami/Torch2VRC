@@ -2,7 +2,9 @@ import numpy as np
 import chevron as cr
 from Torch2VRC.NetworkTrainer import Torch_VRC_Helper
 from pathlib import Path
+import Torch2VRC.CodeGenerator
 import shutil
+
 
 def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork, networkName: str, initialLayer):
 
@@ -41,6 +43,9 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
     print("Copying Static Files...")
     staticResources.mkdir(parents=True, exist_ok=True)
     shutil.copy(sourceResources / "NN_Common.cginc", staticResources / "NN_Common.cginc")
+
+    # Create Unity Editor Script to handle importing and generation of CRTs, Materials
+    Torch2VRC.CodeGenerator.GenerateEditorNetworkImporter(networkRoot, networkName)
 
     # Get Network Layout
     networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
