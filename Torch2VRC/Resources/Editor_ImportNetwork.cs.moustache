@@ -18,7 +18,9 @@ public class MSR_AddButtons : AssetPostprocessor
         // Import Weights / Biases for Connections
         if (assetPath.Contains(NETWORK_NAME + "/Connections"))
         {
-            TextureImporterPlatformSettings platformSettings = new TextureImporterPlatformSettings();
+            Debug.Log("Importing Connections for " + NETWORK_NAME);
+			
+			TextureImporterPlatformSettings platformSettings = new TextureImporterPlatformSettings();
 
             TextureImporter textureImporter = (TextureImporter)assetImporter;
             textureImporter.textureType = TextureImporterType.Default;
