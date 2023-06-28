@@ -43,9 +43,12 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
     print("Copying Static Files...")
     staticResources.mkdir(parents=True, exist_ok=True)
     shutil.copy(sourceResources / "NN_Common.cginc", staticResources / "NN_Common.cginc")
+    shutil.copy(sourceResources / "LoadConnectionLayer.shader", staticResources / "LoadConnectionLayer.shader")
 
     # Create Unity Editor Script to handle importing and generation of CRTs, Materials
     Torch2VRC.CodeGenerator.GenerateEditorNetworkImporter(networkRoot, networkName)
+
+    # Export shaders for loading connections
 
     # Get Network Layout
     networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
@@ -55,15 +58,13 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
         connectionPaths[connectionName] = networkRoot / "Connections" / (connectionName + "/")
         connectionPaths[connectionName].mkdir(parents=True, exist_ok=True)
 
-    # Create weight / biases for connections
+    # Create weight / biases for connections, as well as JSON needed for unity to build materials and CRTs
     for element in networkLayout:
         # if not a connection type, skip
         if type(element).__name__ != "Connection_Linear":
             continue
         element.ExportConnectionData(connectionPaths[element.connectionName])
-
-
-    print("a")
+        element.ExportConnectionJSON(connectionPaths[element.connectionName])
 
     # Per connection layer
     # Generate PNGs

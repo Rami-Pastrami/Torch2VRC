@@ -81,8 +81,8 @@ class Connection_Linear():
         :param folderPath: Folder export path ending with /
         :return: dict containing normalizations for weights and bias
         '''
-        ExportNPArrayAsPNG(self.weight, connectionFolderPath / "WEIGHTS.png")
-        ExportNPArrayAsPNG(self.bias, connectionFolderPath / "BIAS.png")
+        ExportNPArrayAsPNG(self.weight, connectionFolderPath / "WEIGHTS.png", self.weightNormalizer)
+        ExportNPArrayAsPNG(self.bias, connectionFolderPath / "BIAS.png", self.biasNormalizer)
 
     def ExportConnectionJSON(self, folderPath: Path):
         '''
@@ -98,7 +98,7 @@ class Connection_Linear():
         exportData["height"] = self.outputSize
         exportData["weightNormalization"] = self.weightNormalizer
         exportData["biasNormalization"] = self.biasNormalizer
-        filePath: str = str(folderPath / "readme.json")
+        filePath: str = str(folderPath / "DataForMatAndCRT.json")
 
         with open(filePath, "w") as file:
             json.dump(exportData, file)
