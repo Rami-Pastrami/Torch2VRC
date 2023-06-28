@@ -17,21 +17,37 @@ from pathlib import Path
 #         normalizers[b + "_Biases"] = ExportNPArrayAsPNG(biases[b], folderPath + b + "_BIASES.png")
 #     return normalizers
 
-def ExportNPArrayAsPNGAndGetNormalizer(inputArray: np.ndarray, filePathName: Path) -> float:
+def calculateNormalizer(layer: np.ndarray) -> float:
+    '''
+    Calculates the factor that entire matrix can be divided by such that the range is within 0 - 1.
+    Process can be reversed via (input - 1.0) * normalizer
+    :param layer:
+    :return:
+    '''
+
+    maxVal: float = np.max(layer)
+    minVal: float = np.max(layer)
+
+    output: float
+    if abs(minVal) > maxVal:
+        output = 2.0 * abs(minVal)
+    else:
+        output = 2.0 * maxVal
+    return output
+
+def ExportNPArrayAsPNG(inputArray: np.ndarray, filePathName: Path, normalizer: float):
 
     '''
-    Saves Layer Numpy Array as a PNG image, and returns the normalizer needed to rescale it to original values
+    Saves Layer Numpy Array as a PNG image
     :param inputArray: 2D numpy array from PyTorch itself
     :param filePathName: file name / path to save PNG at
+    :param normalizer: value needed to center the array into a 0 - 1 scale
     :return: normalizer value
     '''
 
-    normalizer: float = _calculateNormalizer(inputArray)
     RGBAArray: np.ndarray = _NumpyLayerToRGBAArray(inputArray, normalizer)
     ImageData = im.fromarray(RGBAArray, mode="RGBA")
     ImageData.save(filePathName)
-
-    return normalizer
 
 def _NumpyLayerToRGBAArray( layer: np.ndarray, normalizer: float) -> np.ndarray:
     '''
@@ -68,20 +84,3 @@ def _numToNormalizedColor(number: float, normalizer: float) -> np.ndarray:
     A = int(math.floor(number * 100000000)) - (1000000*R) - (10000*G) - (100*B)
     return np.array([R, G, B, A]).astype('uint8')
 
-def _calculateNormalizer( layer: np.ndarray) -> float:
-    '''
-    Calculates the factor that entire matrix can be divided by such that the range is within 0 - 1.
-    Process can be reversed via (input - 1.0) * normalizer
-    :param layer:
-    :return:
-    '''
-
-    maxVal: float = np.max(layer)
-    minVal: float = np.max(layer)
-
-    output: float
-    if abs(minVal) > maxVal:
-        output = 2.0 * abs(minVal)
-    else:
-        output = 2.0 * maxVal
-    return output

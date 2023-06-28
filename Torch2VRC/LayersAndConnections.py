@@ -1,4 +1,5 @@
-from Torch2VRC.ImageExport import ExportNPArrayAsPNGAndGetNormalizer
+from Torch2VRC.ImageExport import calculateNormalizer
+from Torch2VRC.ImageExport import ExportNPArrayAsPNG
 import numpy as np
 from pathlib import Path
 import json
@@ -48,6 +49,8 @@ class Connection_Linear():
     connectionName: str = None
     weight: np.ndarray = None
     bias: np.ndarray = None
+    weightNormalizer: float = None
+    biasNormalizer: float = None
     combinedWeightBias: np.ndarray = None
     outputNames: list[str] = None
     inputNames: list[str] = None
@@ -68,20 +71,35 @@ class Connection_Linear():
             raise Exception(f"Unknown activation type {activation}!")
 
         self.activation = activation
+        self.weightNormalizer = calculateNormalizer(self.weight)
+        self.biasNormalizer = calculateNormalizer(self.bias)
 
 
-    def ExportConnectionData(self, connectionFolderPath: Path) -> dict:
+    def ExportConnectionData(self, connectionFolderPath: Path):
         '''
         Exports Linear Weights and Bias as PNGs into the specified folder
         :param folderPath: Folder export path ending with /
         :return: dict containing normalizations for weights and bias
         '''
-        output: dict = {}
-        output["weights"] = ExportNPArrayAsPNGAndGetNormalizer(self.weight, connectionFolderPath / "WEIGHTS.png")
-        output["bias"] = ExportNPArrayAsPNGAndGetNormalizer(self.bias, connectionFolderPath / "BIAS.png")
-        return output
+        ExportNPArrayAsPNG(self.weight, connectionFolderPath / "WEIGHTS.png")
+        ExportNPArrayAsPNG(self.bias, connectionFolderPath / "BIAS.png")
 
-    def ExportFull(self, folderPath: Path):
-        normalizations = self.ExportConnectionData(folderPath)
-        # TODO shader data loader export
-        # TODO JSON for Material and CRT
+    def ExportConnectionJSON(self, folderPath: Path):
+        '''
+        Exports JSON of connection for Unity C# to use to create material and CRT
+        :param folderPath:
+        :param weightNormalization:
+        :param biasNormalization:
+        :return:
+        '''
+        exportData: dict = {}
+        exportData["connectionType"] = "linear"
+        exportData["width"] = self.inputSize + 1
+        exportData["height"] = self.outputSize
+        exportData["weightNormalization"] = self.weightNormalizer
+        exportData["biasNormalization"] = self.biasNormalizer
+        filePath: str = str(folderPath / "readme.json")
+
+        with open(filePath, "w") as file:
+            json.dump(exportData, file)
+
