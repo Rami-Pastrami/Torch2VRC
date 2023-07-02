@@ -4,6 +4,10 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using UnityEditor.Experimental;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 
 
 #if UNITY_EDITOR
@@ -11,48 +15,167 @@ public class MSR_AddButtons : AssetPostprocessor
 {
     const string NETWORK_NAME = "{{NetworkName}}";
 
-    public void OnPreprocessTexture()
+    [MenuItem("Rami/Torch2VRC/" + NETWORK_NAME  + "/Reload Network Model settings from Torch2VRC")]
+    private static void ReloadModel()
     {
-        if( !assetPath.Contains("Rami-Pastrami/Torch2VRC/" + NETWORK_NAME) ) { return; } // Don't bother if not in network folder
+        string networkRoot = "Assets/Rami-Pastrami/Torch2VRC/" + NETWORK_NAME;
+        string connectionsRoot = networkRoot + "/Connections";
+        string staticRoot = networkRoot + "/Static_Resources";
+        Debug.Log($"ReImporting Network at {networkRoot}");
 
-        // Import Weights / Biases for Connections
-        if (assetPath.Contains(NETWORK_NAME + "/Connections"))
+        // Load Connections
+        string[] connectionPaths = AssetDatabase.GetSubFolders(connectionsRoot);
+        Debug.Log(connectionsRoot);
+        foreach (string connectionPath in  connectionPaths) // For each 'Layer'
         {
-            Debug.Log("Importing Connections for " + NETWORK_NAME);
-			
-			TextureImporterPlatformSettings platformSettings = new TextureImporterPlatformSettings();
+            Debug.Log($"Building Connection in {connectionPath}");
 
-            TextureImporter textureImporter = (TextureImporter)assetImporter;
-            textureImporter.textureType = TextureImporterType.Default;
-            textureImporter.textureShape = TextureImporterShape.Texture2D;
-            textureImporter.sRGBTexture = false;
-            textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
-            textureImporter.alphaIsTransparency = true;
-            textureImporter.wrapMode = TextureWrapMode.Clamp;
-            textureImporter.filterMode = FilterMode.Point;
+            //Import Json Settings
+            string JSONPath = connectionPath + "/DataForMatAndCRT.json";
+            if (!File.Exists(JSONPath)) { Debug.LogError("Unable to find json at " + JSONPath); return; }
+            StreamReader reader = new StreamReader(JSONPath);
+            string json = reader.ReadToEnd();
+            reader.Close();
+            ConnectionInfo connectionDetails = ConnectionInfo.CreateFromJSON(json);
+            Debug.Log($"Connection Type: {connectionDetails.connectionType}");
 
-            platformSettings.maxTextureSize = 8192;
-            platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
-            platformSettings.format = TextureImporterFormat.RGBA32;
-            textureImporter.SetPlatformTextureSettings(platformSettings);
+            switch(connectionDetails.connectionType)
+            {
+                case "linear":
+                    ImportLinearLayer(connectionPath, connectionDetails);
+                    break;
+
+                default:
+                    Debug.LogError($"Unknown connection type {connectionDetails}");
+                    return;
+            }
 
         }
-
-
     }
 
 
-
-    [MenuItem("Rami/Torch2VRC/" + NETWORK_NAME  + "/Placeholder")]
-    private static void DoNothingForNow()
+    /// <summary>
+    /// Imports a linear layer amd creates the required material and CRT
+    /// </summary>
+    /// <param name="connectionPath"></param>
+    /// <param name="connectionSettings"></param>
+    private static void ImportLinearLayer(string connectionPath, ConnectionInfo connectionSettings)
     {
-        Debug.Log("Test");
+        string[] texturePaths = new string[] { connectionPath + "/BIAS.png", connectionPath + "/WEIGHTS.png" };
+        string materialPath = connectionPath + "/Linear.mat";
+        string CRTPath = connectionPath + "/data.asset";
+
+        Debug.Log("Importing Textures...");
+        // Import Textures
+        foreach (string connectionPartPath in texturePaths)
+        {
+            ImportConnectionTexture(connectionPartPath);
+        }
+
+        // Create Material
+        Debug.Log("Creating Material...");
+        Shader linearShader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/Rami-Pastrami/Torch2VRC/" + NETWORK_NAME + "/Static_Resources/LoadLinearConnectionLayer.shader");
+        if(linearShader == null) { Debug.LogError("Unable to load Shader file LoadLinearConnectionLayer.shader"); return; }
+        Material linearMat = new Material(linearShader);
+        linearMat.SetTexture("_TexWeights", (Texture2D)AssetDatabase.LoadAssetAtPath(texturePaths[1], typeof(Texture)));
+        linearMat.SetFloat("_Normalization_Weights", connectionSettings.weightNormalization);
+        linearMat.SetTexture("_TexBias", (Texture2D)AssetDatabase.LoadAssetAtPath(texturePaths[0], typeof(Texture)));
+        linearMat.SetFloat("_Normalization_Biases", connectionSettings.biasNormalization);
+        AssetDatabase.CreateAsset(linearMat, materialPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        // Create Custom Render Texture
+        Debug.Log("Importing Custom Render Texture...");
+        CustomRenderTextureUpdateMode updateMode = CustomRenderTextureUpdateMode.OnLoad;
+        CustomRenderTextureUpdateZone loadWeights = new CustomRenderTextureUpdateZone();
+        loadWeights.rotation = 0f;
+        loadWeights.updateZoneCenter = new Vector3(((float)connectionSettings.width - 1f) / 2f, (float)connectionSettings.height / 2f, 0f);
+        loadWeights.updateZoneSize = new Vector3( (float)connectionSettings.width - 1f, (float) connectionSettings.height, 0f);
+        loadWeights.passIndex = 0;
+        CustomRenderTextureUpdateZone loadBias = new CustomRenderTextureUpdateZone();
+        loadBias.rotation = 0f;
+        loadBias.updateZoneCenter = new Vector3( (float)connectionSettings.width - 0.5f, (float)connectionSettings.height / 2f, 0f);
+        loadBias.updateZoneSize = new Vector3(1f, (float)connectionSettings.height, 0f);
+        loadBias.passIndex = 1;
+        CreateCustomRenderTexture(CRTPath, materialPath, connectionSettings, updateMode, false, new CustomRenderTextureUpdateZone[] { loadWeights, loadBias });
+
     }
 
+    private static void CreateCustomRenderTexture(string CRTPath, string materialPath, ConnectionInfo connectionSettings, CustomRenderTextureUpdateMode updateMode,
+        bool isDoubleBuffered, CustomRenderTextureUpdateZone[] updateZones)
+    {
 
+        CustomRenderTexture crt = new CustomRenderTexture(connectionSettings.width, connectionSettings.height);
+        crt.format = RenderTextureFormat.RHalf;
+        crt.useMipMap = false;
+        crt.wrapMode = TextureWrapMode.Clamp;
+        crt.filterMode = FilterMode.Point;
+        crt.anisoLevel = 0;
+        crt.updateZoneSpace = CustomRenderTextureUpdateZoneSpace.Pixel;
 
+        RenderTextureDescriptor descriptor = crt.descriptor;
+        descriptor.depthBufferBits = 0;
+        crt.descriptor = descriptor;
 
+        PropertyInfo propertyInfo = typeof(CustomRenderTexture).GetProperty("enableCompatibleColorFormat", BindingFlags.Instance | BindingFlags.NonPublic);
+        if (propertyInfo == null) { Debug.LogWarning("Unable to enable 'enableCompatibleColorFormat', please ensure it is enabled manually"); }
+        else { propertyInfo.SetValue(crt, true); }
 
+        Material layerMaterial = (Material)AssetDatabase.LoadAssetAtPath(materialPath, typeof(Material));
+        crt.material = layerMaterial;
+        crt.initializationMode = CustomRenderTextureUpdateMode.OnLoad;
+        crt.initializationColor = Color.black;
+
+        crt.updateMode = updateMode;
+        crt.doubleBuffered = isDoubleBuffered;
+        crt.SetUpdateZones(updateZones);
+
+        AssetDatabase.CreateAsset(crt, CRTPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
+    [System.Serializable]
+    public class ConnectionInfo
+    {
+        public string connectionType;
+        public int width;
+        public int height;
+        public float weightNormalization;
+        public float biasNormalization;
+
+        public static ConnectionInfo CreateFromJSON(string jsonString)
+        {
+            return JsonUtility.FromJson<ConnectionInfo>(jsonString);
+        }
+    }
+
+    /// <summary>
+    /// Imports a texture with import settings to ensure functionality with the neural network shaders
+    /// </summary>
+    /// <param name="connectionTexturePath"></param>
+    private static void ImportConnectionTexture(string connectionTexturePath)
+    {
+        TextureImporter textureImporter = AssetImporter.GetAtPath(connectionTexturePath) as TextureImporter;
+        if (textureImporter == null) { Debug.LogError("Unable to load Texture file at " + connectionTexturePath); return; }
+
+        TextureImporterPlatformSettings platformSettings = new TextureImporterPlatformSettings();
+        textureImporter.textureType = TextureImporterType.Default;
+        textureImporter.textureShape = TextureImporterShape.Texture2D;
+        textureImporter.sRGBTexture = false;
+        textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
+        textureImporter.alphaIsTransparency = true;
+        textureImporter.wrapMode = TextureWrapMode.Clamp;
+        textureImporter.filterMode = FilterMode.Point;
+        platformSettings.maxTextureSize = 8192;
+        platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
+        platformSettings.format = TextureImporterFormat.RGBA32;
+        textureImporter.SetPlatformTextureSettings(platformSettings);
+
+        AssetDatabase.ImportAsset(connectionTexturePath);
+        AssetDatabase.Refresh();
+    }
 
 }
 #endif
