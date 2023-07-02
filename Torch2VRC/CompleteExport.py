@@ -42,8 +42,10 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
     # Copy over constant resource files
     print("Copying Static Files...")
     staticResources.mkdir(parents=True, exist_ok=True)
-    shutil.copy(sourceResources / "NN_Common.cginc", staticResources / "NN_Common.cginc")
-    shutil.copy(sourceResources / "LoadConnectionLayer.shader", staticResources / "LoadConnectionLayer.shader")
+    if not (sourceResources / "NN_Common.cginc").exists:
+        shutil.copy(sourceResources / "NN_Common.cginc", staticResources / "NN_Common.cginc")
+    if not (sourceResources / "LoadLinearConnectionLayer.shader").exists:
+        shutil.copy(sourceResources / "LoadLinearConnectionLayer.shader", staticResources / "LoadLinearConnectionLayer.shader")
 
     # Create Unity Editor Script to handle importing and generation of CRTs, Materials
     Torch2VRC.CodeGenerator.GenerateEditorNetworkImporter(networkRoot, networkName)

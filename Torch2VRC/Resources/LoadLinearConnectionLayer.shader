@@ -1,4 +1,4 @@
-﻿Shader "Rami-Pastrami/Torch2VRC/LoadConnectionLayer"
+﻿Shader "Rami-Pastrami/Torch2VRC/LoadLinearConnectionLayer"
 {
     Properties
     {
