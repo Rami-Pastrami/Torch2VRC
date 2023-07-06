@@ -117,32 +117,6 @@ class Torch_VRC_Helper():
 
         raise Exception("Unaccounted for number of inputs given!")
 
-    #TODO scrap this
-    def ExportNetworkLayersAsNumpy(self, network) -> tuple[dict, dict]:
-
-        '''
-        Outputs numpy arrays that make up the inputted neural network
-        :param network: input network
-        :return: dict of weights (name: data), dict of biases (name: data)
-        '''
-
-        weights: dict = {}
-        biases: dict = {}
-        data: list = list(network.named_modules())
-
-        # shitty loop to skip the first index
-        for i in range(1, len(data)):
-            # also ensure all arrays are 2D
-            wData = data[i][1].weight.detach().numpy()
-            if wData.ndim == 1:  # stupid 1D hack
-                wData = np.expand_dims(wData, axis=0)
-            weights[(data[i][0])] = wData
-            bData = data[i][1].bias.detach().numpy()
-            if bData.ndim == 1:  # stupid 1D hack
-                bData = np.expand_dims(bData, axis=0)
-            biases[(data[i][0])] = bData
-
-        return weights, biases
 
     # TODO temporary, switch to a tree structure later!
     def ExportNetworkLayersNetworkTree(self, initialLayer, network) -> list:
@@ -200,8 +174,6 @@ class Torch_VRC_Helper():
             raise Exception(f"Unsupported Layer Type {layerType}!")
 
         return output
-
-
 
 
     def _Train1Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):

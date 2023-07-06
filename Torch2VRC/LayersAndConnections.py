@@ -8,12 +8,12 @@ import json
 
 # No data held in these! just for context reference
 
-class Layer_Base():
-    postConnectionNames: list = []
+class Layer_FloatArray():
+    '''
+    Represents a uniform float array that is written to by UDON.
+    WARNING, you CANNOT write to this layer, only read from it!
+    '''
     layerName: str = None
-
-class Layer_FloatArray(Layer_Base):
-
     ArrayName: str = None
     size: int = None
 
@@ -26,15 +26,16 @@ class Layer_FloatArray(Layer_Base):
             raise Exception("Uniform Float Array Names Must Start With '_Udon_' Exactly!")
         self.ArrayName = ArrayName
 
-class Layer_1D(Layer_Base):
-
-    priorConnectionNames: list = []
+class Layer_1D():
+    '''
+    Standard 1D layer that is held as a CRT
+    '''
+    layerName: str = None
     size: int = None
 
-    def __init__(self, size: int, layerName: str, priorConnectionNames: list):
+    def __init__(self, size: int, layerName: str):
 
         self.layerName = layerName
-        self.priorConnectionNames = priorConnectionNames
         self.size = size
 
 

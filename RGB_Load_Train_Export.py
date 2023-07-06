@@ -28,6 +28,8 @@ importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 
 # Init NN Builder
 possibleOutputs = [["red", "green", "blue", "magenta", "yellow"]]
+
+
 connectionDefs = {
     "innerConnections": {
         "i": "input",
