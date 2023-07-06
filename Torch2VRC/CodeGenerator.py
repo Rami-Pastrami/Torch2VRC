@@ -16,3 +16,6 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
         newFile = open(filePath, 'w')
         _ = newFile.write(generatedText)
         newFile.close()
+
+def GenerateNetworkShader(unityNetworkFolderPath: Path, networkName: str):
+    pass

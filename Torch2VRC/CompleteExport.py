@@ -50,8 +50,6 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
     # Create Unity Editor Script to handle importing and generation of CRTs, Materials
     Torch2VRC.CodeGenerator.GenerateEditorNetworkImporter(networkRoot, networkName)
 
-    # Export shaders for loading connections
-
     # Get Network Layout
     networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
 
@@ -68,13 +66,8 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
         element.ExportConnectionData(connectionPaths[element.connectionName])
         element.ExportConnectionJSON(connectionPaths[element.connectionName])
 
-    # Per connection layer
-    # Generate PNGs
-    # Generate JSONs detailing creation of Material, Data CRT
-
     # Generate Network Shader
-    # Generate Custom Shader File
-    # Generate JSON for broad network, connection names
+
 
     pass
 
