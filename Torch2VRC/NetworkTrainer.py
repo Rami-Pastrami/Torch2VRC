@@ -12,8 +12,9 @@ class Torch_VRC_Helper():
     numInputLayers: int  # the number of separate input layers, NEEDED for hacky training system
     connectionActivations: dict  # Connection names as keys, and their associated pair is the activation function string
     layerObjects: list  # List of Layer definition objects (from LayersConnectionSummary)
-    connectionMappings: dict  # connection names as keys, associated data pair is a 2 element list, with the first being
+    connectionMappings: dict  # connection names as keys, associated pair is a 2 element tuple, with the first being
     # the string name of the layer in, and second element being the string name of the layer out
+    networkSummary: lac.Network_Summary  # contains graph and other details summarizing the layout of the network
 
     def __init__(self,  importedData: dict, answerLookup: list, connectionActivations: dict, layerObjects: list,
                  connectionMappings: dict):
@@ -161,8 +162,8 @@ class Torch_VRC_Helper():
 
         if network == None: raise Exception("Unaccounted for number of inputs given!")
 
-        print("Training Complete! Exporting Structure Overview...")
-        self._ExportNetworkAsCustomObject(network)
+        print("Training Complete! Exporting Network Summary...")
+        self.networkSummary = self._ExportNetworkAsSummary(network)
         print("Export complete!")
         return network
 
@@ -224,7 +225,7 @@ class Torch_VRC_Helper():
     #
     #     return output
 
-    def _ExportNetworkAsCustomObject(self, network):
+    def _ExportNetworkAsSummary(self, network) -> lac.Network_Summary:
 
         def ExtractConnectionsFromNetwork(net, activationsPerConnection: dict) -> dict:
             '''
@@ -274,7 +275,7 @@ class Torch_VRC_Helper():
 
         connections: dict = ExtractConnectionsFromNetwork(network, self.connectionActivations)
         layers: dict = LayerArray2LayerDict(self.layerObjects)
-
+        return lac.Network_Summary(connections, layers, self.connectionMappings)
 
 
 # Example separate Train Function. Otherwise unused

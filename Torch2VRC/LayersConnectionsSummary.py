@@ -118,7 +118,7 @@ class Network_Summary():
         self.layers = layers
         self.connectionMappings = connectionMappings
         self.connectionActivations = self._GetActivationMappings()
-        
+
 
     def _GetActivationMappings(self) -> dict:
 
