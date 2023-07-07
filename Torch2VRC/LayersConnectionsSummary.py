@@ -64,7 +64,7 @@ class Connection_Linear():
         self.connectionName = connectionName  # turn sideways
         self.bias = bias[:, np.newaxis]  # Turn 1D array sideways by making it a 1 wide 2D array
 
-        if (activation != "none") and (activation != "tanh"):
+        if activation not in ["none", "tanh"]:
             raise Exception(f"Unknown activation type {activation}!")
 
         self.activation = activation
@@ -104,6 +104,27 @@ class Connection_Linear():
 ################## Network Summary ##################
 
 class Network_Summary():
-    pass
+    ''' Contains properties to show in various ways the structure of the network. To make my life easier later '''
+
+    connections: dict  # matches a connection string name to a connection definition object
+    connectionMappings: dict  # matches a connection string name to a 2 element tuple of the input / output layer string names
+    layers: dict  # matches a layer string name to a layer definition object
+    connectionActivations: dict # matches connection string name to activation string name
+
+
+    def __init__(self, connections: dict, layers: dict, connectionMappings: dict):
+
+        self.connections = connections
+        self.layers = layers
+        self.connectionMappings = connectionMappings
+        self.connectionActivations = self._GetActivationMappings()
+        
+
+    def _GetActivationMappings(self) -> dict:
+
+        output: dict = {}
+        for connectionStr in self.connections.keys():
+            output[connectionStr] = self.connections[connectionStr].activation
+        return output
 
 
