@@ -6,7 +6,7 @@ import Torch2VRC.CodeGenerator
 import shutil
 
 
-def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, trainedNetwork, networkName: str, initialLayer):
+def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, networkName: str):
 
     # Load prereq info into vars
     sourceResources: Path = Path.cwd() / "Torch2VRC/Resources/"
@@ -50,23 +50,17 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
     # Create Unity Editor Script to handle importing and generation of CRTs, Materials
     Torch2VRC.CodeGenerator.GenerateEditorNetworkImporter(networkRoot, networkName)
 
-    # Get Network Layout
-    # OLD networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
-
 
 
     # Create connection folders
-    for connectionName in helper.connectionConnectionsAndActivations.keys():
+    for connectionName in helper.networkSummary.connections.keys():
         connectionPaths[connectionName] = networkRoot / "Connections" / (connectionName + "/")
         connectionPaths[connectionName].mkdir(parents=True, exist_ok=True)
 
     # Create weight / biases for connections, as well as JSON needed for unity to build materials and CRTs
-    for element in networkLayout:
-        # if not a connection type, skip
-        if type(element).__name__ != "Connection_Linear":
-            continue
-        element.ExportConnectionData(connectionPaths[element.connectionName])
-        element.ExportConnectionJSON(connectionPaths[element.connectionName])
+    for connection in helper.networkSummary.connections.values():
+        connection.ExportConnectionData(connectionPaths[connection.connectionName])
+        connection.ExportConnectionJSON(connectionPaths[connection.connectionName])
 
     # Generate Network Shader
 

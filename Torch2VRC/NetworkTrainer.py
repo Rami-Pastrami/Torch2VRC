@@ -257,7 +257,7 @@ class Torch_VRC_Helper():
                 # define base dict structure
                 connectionName: str = namedModules[i][0]
                 connectionData = namedModules[i][1]
-                activationFunctionName: str = "none" # Get activation string if defined, else none
+                activationFunctionName: str = "none"  # Get activation string if defined, else none
                 if connectionName in activationsPerConnection.keys():
                     activationFunctionName = activationsPerConnection[connectionName]
                 layerType: str = GetLayerType(connectionData)
