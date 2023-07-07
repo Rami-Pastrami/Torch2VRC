@@ -2,7 +2,7 @@ import numpy as np
 import torch as pt
 from torch import nn
 from torch import optim
-import Torch2VRC.LayersAndConnections as lac
+import Torch2VRC.LayersConnectionsSummary as lac
 
 class Torch_VRC_Helper():
 
@@ -94,7 +94,6 @@ class Torch_VRC_Helper():
 
     # Not the best way to do this, but due to how pytorch works some things get weird
     def Train(self, neuralNetwork, numberEpochs=2000, learningRate=0.0001):
-
         '''
         Trains the network, then returns it
         :param neuralNetwork: network you wish to train
@@ -103,17 +102,60 @@ class Torch_VRC_Helper():
         :return:
         '''
 
+        def _Train1Input(net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
+
+            for epochI in range(numEpochs):
+                lossI = lossFunction(self.testingData, net(input1))
+                optimizer.zero_grad()
+                lossI.backward()
+                optimizer.step()
+                print(lossI.item())
+            print("Training Complete!")
+            return net
+
+        def _Train2Input(net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor):
+
+            for epochI in range(numEpochs):
+                lossI = lossFunction(self.testingData, net(input1, input2))
+                optimizer.zero_grad()
+                lossI.backward()
+                optimizer.step()
+                print(lossI.item())
+            print("Training Complete!")
+            return net
+
+        def _Train3Input(net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor,
+                         input3: pt.Tensor):
+
+            for epochI in range(numEpochs):
+                lossI = lossFunction(self.testingData, net(input1, input2, input3))
+                optimizer.zero_grad()
+                lossI.backward()
+                optimizer.step()
+                print(lossI.item())
+            print("Training Complete!")
+            return net
+
+        def _returnListWithoutNones(input) -> list:
+
+            output: list = []
+            for e in input:
+                if e is None: continue
+                output.append(e)
+            return output
+
+
         optimizer = optim.SGD(neuralNetwork.parameters(), lr=learningRate)
         lossFunction = nn.MSELoss()
-        inputs: list = self._returnListWithoutNones(self.trainingData)
+        inputs: list = _returnListWithoutNones(self.trainingData)
 
         # This is why C like languages are better
         if self.numInputLayers == 1:
-            return self._Train1Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0])
+            return _Train1Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0])
         if self.numInputLayers == 2:
-            return self._Train2Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1])
+            return _Train2Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1])
         if self.numInputLayers == 3:
-            return self._Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
+            return _Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
 
         raise Exception("Unaccounted for number of inputs given!")
 
@@ -132,14 +174,14 @@ class Torch_VRC_Helper():
             layerDef: str = str(specificLayer)
             return layerDef[0: layerDef.find("(")]
 
-        data: list = list(network.named_modules())
+        namedModules: list = list(network.named_modules())
         output: list = [initialLayer]
 
         # shitty loop to skip the first index
-        for i in range(1, len(data)):
+        for i in range(1, len(namedModules)):
             # define base dict structure
-            connectionName: str = data[i][0]
-            connectionData = data[i][1]
+            connectionName: str = namedModules[i][0]
+            connectionData = namedModules[i][1]
             layerType = _GetLayerType(connectionData)
 
             if layerType == "Linear":
@@ -175,47 +217,46 @@ class Torch_VRC_Helper():
 
         return output
 
+    def ExportNetworkAsCustomObject(self, network, connectionMappings: dict, connectionActivations: dict,
+                                    layerObjects: list):
 
-    def _Train1Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
+        def ExtractConnectionsFromNetwork(net, activationsPerConnection: dict) -> dict:
+            '''
 
-        for epochI in range(numEpochs):
-            lossI = lossFunction(self.testingData, net(input1))
-            optimizer.zero_grad()
-            lossI.backward()
-            optimizer.step()
-            print(lossI.item())
-        print("Training Complete!")
-        return net
+            :param net: Trained Pytorch network object
+            :param activationsPerConnection: dictionary with keys being the connection layer name, and data being the activation function string
+            :return:
+            '''
+            def GetLayerType(specificLayer) -> str:
+                ''' Stupid cursed method for finding the layer connection type '''
+                layerDef: str = str(specificLayer)
+                return layerDef[0: layerDef.find("(")]
 
-    def _Train2Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor):
+            def GenerateLinearConnection(conName: str, activationFunctionName: str, conData) -> lac.Connection_Linear:
+                ''' Extracts information from ConnectionData to build Conneciton_Linear Object '''
+                weights: np.ndarray = conData.weight.detach().numpy()
+                bias: np.ndarray = conData.bias.detach().numpy().transpose()  # transpose so it fits better in CRT
+                inputSize: int = conData.in_features
+                outputSize: int = conData.out_features
+                return lac.Connection_Linear(weights, bias, conName, activationFunctionName, inputSize, outputSize)
 
-        for epochI in range(numEpochs):
-            lossI = lossFunction(self.testingData, net(input1, input2))
-            optimizer.zero_grad()
-            lossI.backward()
-            optimizer.step()
-            print(lossI.item())
-        print("Training Complete!")
-        return net
+            # TODO add more layer connection types!
 
-    def _Train3Input(self, net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor, input3: pt.Tensor):
+            output: dict = {}
+            namedModules: list = list(net.named_modules())
 
-        for epochI in range(numEpochs):
-            lossI = lossFunction(self.testingData, net(input1, input2, input3))
-            optimizer.zero_grad()
-            lossI.backward()
-            optimizer.step()
-            print(lossI.item())
-        print("Training Complete!")
-        return net
+            # shitty loop to skip the first index
+            for i in range(1, len(namedModules)):
+                # define base dict structure
+                connectionName: str = namedModules[i][0]
+                connectionData = namedModules[i][1]
+                layerType: str = GetLayerType(connectionData)
+                activationFunctionName: str = activationsPerConnection[connectionName]
+                output[connectionName] = GenerateLinearConnection(connectionName, activationFunctionName, connectionData)
+            return output
 
-    def _returnListWithoutNones(self, input) -> list:
 
-        output: list = []
-        for e in input:
-            if e is None: continue
-            output.append(e)
-        return output
+
 
 
 # Example separate Train Function. Otherwise unused
