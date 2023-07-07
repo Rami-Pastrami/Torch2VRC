@@ -9,21 +9,22 @@ class Torch_VRC_Helper():
     answerLookup: list  # string list whose index corresponds to output neuron
     trainingData: list[pt.Tensor or None]  # testing input data used for training, in order of usage at location of inputs
     testingData: pt.Tensor  # testing output data used for training
-    numInputLayers: int  # the number of separate input layers
-    connectionConnectionsAndActivations: dict  # keys are layer names, data are futher dictionaries where 'i' is an
-    # array of input connections, 'o' is an array of output connections, and 'activation' is optional activation type
-    layerTypes: dict  # key matched layer name to type (1D, uniformFloatArray, etc)
+    numInputLayers: int  # the number of separate input layers, NEEDED for hacky training system
+    connectionActivations: dict  # Connection names as keys, and their associated pair is the activation function string
+    layerObjects: list  # List of Layer definition objects (from LayersConnectionSummary)
+    connectionMappings: dict  # connection names as keys, associated data pair is a 2 element list, with the first being
+    # the string name of the layer in, and second element being the string name of the layer out
 
-
-    def __init__(self,  importedData: dict, answerLookup: list, connectionConnectionsAndActivations: dict,
-                 layerTypes: dict):
+    def __init__(self,  importedData: dict, answerLookup: list, connectionActivations: dict, layerObjects: list,
+                 connectionMappings: dict):
 
         self.answerLookup = answerLookup
         _ , answerCounts = self.GenerateTestingData(importedData)
         self.trainingData, self.numInputLayers = self.GenerateClassifierTrainingTensors(importedData, answerLookup)
         self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
-        self.connectionConnectionsAndActivations = connectionConnectionsAndActivations
-        self.layerTypes = layerTypes
+        self.connectionActivations = connectionActivations
+        self.layerObjects = layerObjects
+        self.connectionMappings = connectionMappings
 
     def GenerateTestingData(self, totalData: dict) -> tuple:
         '''
@@ -149,76 +150,81 @@ class Torch_VRC_Helper():
         lossFunction = nn.MSELoss()
         inputs: list = _returnListWithoutNones(self.trainingData)
 
+        network = None
         # This is why C like languages are better
         if self.numInputLayers == 1:
-            return _Train1Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0])
+            network = _Train1Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0])
         if self.numInputLayers == 2:
-            return _Train2Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1])
+            network =  _Train2Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1])
         if self.numInputLayers == 3:
-            return _Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
+            network =  _Train3Input(neuralNetwork, numberEpochs, optimizer, lossFunction, inputs[0], inputs[1], inputs[2])
 
-        raise Exception("Unaccounted for number of inputs given!")
+        if network == None: raise Exception("Unaccounted for number of inputs given!")
+
+        print("Training Complete! Exporting Structure Overview...")
+        self._ExportNetworkAsCustomObject(network)
+        print("Export complete!")
+        return network
 
 
-    # TODO temporary, switch to a tree structure later!
-    def ExportNetworkLayersNetworkTree(self, initialLayer, network) -> list:
-        '''
-        Outputs structure describing how network is wired together
-        :param initialLayer: initial layer object, using class from LayersAndConnections
-        :param network: trained PyTorch network
-        :return:
-        '''
+    # # TODO temporary, switch to a tree structure later!
+    # def ExportNetworkLayersNetworkTree(self, initialLayer, network) -> list:
+    #     '''
+    #     Outputs structure describing how network is wired together
+    #     :param initialLayer: initial layer object, using class from LayersAndConnections
+    #     :param network: trained PyTorch network
+    #     :return:
+    #     '''
+    #
+    #     def _GetLayerType(specificLayer) -> str:
+    #         ''' Stupid cursed method for finding the layer connection type '''
+    #         layerDef: str = str(specificLayer)
+    #         return layerDef[0: layerDef.find("(")]
+    #
+    #     namedModules: list = list(network.named_modules())
+    #     output: list = [initialLayer]
+    #
+    #     # shitty loop to skip the first index
+    #     for i in range(1, len(namedModules)):
+    #         # define base dict structure
+    #         connectionName: str = namedModules[i][0]
+    #         connectionData = namedModules[i][1]
+    #         layerType = _GetLayerType(connectionData)
+    #
+    #         if layerType == "Linear":
+    #             # Get prereqs for connection object
+    #             weights = connectionData.weight.detach().numpy()
+    #             bias = connectionData.bias.detach().numpy().transpose()  # transpose so it fits better in CRT
+    #             inputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["i"]
+    #             outputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["o"]
+    #             inputSize: int = connectionData.in_features
+    #             outputSize: int = connectionData.out_features
+    #             activation: str = "none"
+    #             if "activation" in self.connectionConnectionsAndActivations[connectionName]:
+    #                 activation = self.connectionConnectionsAndActivations[connectionName]["activation"]
+    #             connection = lac.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
+    #                                                inputSize, outputSize)
+    #
+    #             # get prereqs for output layer object
+    #             outputLayer = None
+    #
+    #             if self.connectionConnectionsAndActivations[connectionName] == "uniformFloatArray":
+    #                 # input is a float array
+    #                 outputLayer = lac.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
+    #             elif self.connectionConnectionsAndActivations[connectionName] == "1D":
+    #                 # input is another 1D crt
+    #                 priorConnections: list = [connectionName]  # temp, replace with tree stuff later
+    #                 outputLayer = lac.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
+    #
+    #             output.append(connection)
+    #             output.append(outputLayer)
+    #             continue
+    #
+    #         raise Exception(f"Unsupported Layer Type {layerType}!")
+    #
+    #     return output
 
-        def _GetLayerType(specificLayer) -> str:
-            ''' Stupid cursed method for finding the layer connection type '''
-            layerDef: str = str(specificLayer)
-            return layerDef[0: layerDef.find("(")]
-
-        namedModules: list = list(network.named_modules())
-        output: list = [initialLayer]
-
-        # shitty loop to skip the first index
-        for i in range(1, len(namedModules)):
-            # define base dict structure
-            connectionName: str = namedModules[i][0]
-            connectionData = namedModules[i][1]
-            layerType = _GetLayerType(connectionData)
-
-            if layerType == "Linear":
-                # Get prereqs for connection object
-                weights = connectionData.weight.detach().numpy()
-                bias = connectionData.bias.detach().numpy().transpose()  # transpose so it fits better in CRT
-                inputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["i"]
-                outputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["o"]
-                inputSize: int = connectionData.in_features
-                outputSize: int = connectionData.out_features
-                activation: str = "none"
-                if "activation" in self.connectionConnectionsAndActivations[connectionName]:
-                    activation = self.connectionConnectionsAndActivations[connectionName]["activation"]
-                connection = lac.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
-                                                   inputSize, outputSize)
-
-                # get prereqs for output layer object
-                outputLayer = None
-
-                if self.connectionConnectionsAndActivations[connectionName] == "uniformFloatArray":
-                    # input is a float array
-                    outputLayer = lac.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
-                elif self.connectionConnectionsAndActivations[connectionName] == "1D":
-                    # input is another 1D crt
-                    priorConnections: list = [connectionName]  # temp, replace with tree stuff later
-                    outputLayer = lac.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
-
-                output.append(connection)
-                output.append(outputLayer)
-                continue
-
-            raise Exception(f"Unsupported Layer Type {layerType}!")
-
-        return output
-
-    def ExportNetworkAsCustomObject(self, network, connectionMappings: dict, connectionActivations: dict,
-                                    layerObjects: list):
+    def _ExportNetworkAsCustomObject(self, network):
 
         def ExtractConnectionsFromNetwork(net, activationsPerConnection: dict) -> dict:
             '''
@@ -250,12 +256,24 @@ class Torch_VRC_Helper():
                 # define base dict structure
                 connectionName: str = namedModules[i][0]
                 connectionData = namedModules[i][1]
+                activationFunctionName: str = "none" # Get activation string if defined, else none
+                if connectionName in activationsPerConnection.keys():
+                    activationFunctionName = activationsPerConnection[connectionName]
                 layerType: str = GetLayerType(connectionData)
-                activationFunctionName: str = activationsPerConnection[connectionName]
-                output[connectionName] = GenerateLinearConnection(connectionName, activationFunctionName, connectionData)
+                if layerType.lower() == "linear":
+                    output[connectionName] = GenerateLinearConnection(connectionName, activationFunctionName, connectionData)
             return output
 
+        def LayerArray2LayerDict(layers: list) -> dict:
+            '''Converts a list of layers to dictionary of them, key'd by the name of the layer. For my convenience'''
 
+            output: dict = {}
+            for layer in layers:
+                output[layer.layerName] = layer
+            return output
+
+        connections: dict = ExtractConnectionsFromNetwork(network, self.connectionActivations)
+        layers: dict = LayerArray2LayerDict(self.layerObjects)
 
 
 
