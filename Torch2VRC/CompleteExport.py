@@ -51,7 +51,9 @@ def ExportNetworkToVRC(pathToAssetsFolder: Path, helper: Torch_VRC_Helper, train
     Torch2VRC.CodeGenerator.GenerateEditorNetworkImporter(networkRoot, networkName)
 
     # Get Network Layout
-    networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
+    # OLD networkLayout: list = helper.ExportNetworkLayersNetworkTree(initialLayer, trainedNetwork)
+
+
 
     # Create connection folders
     for connectionName in helper.connectionConnectionsAndActivations.keys():

@@ -53,18 +53,14 @@ class Connection_Linear():
     weightNormalizer: float = None
     biasNormalizer: float = None
     combinedWeightBias: np.ndarray = None
-    outputNames: list[str] = None
-    inputNames: list[str] = None
-    activation: str = None  # can be none or tanh
+    activation: str = None  # can be 'none' or 'tanh'
 
-    def __init__(self, weight: np.ndarray, bias: np.ndarray, connectionName: str, outputNames: list[str],
-                 inputNames: list[str], activation: str, inputSize: int, outputSize: int):
+    def __init__(self, weight: np.ndarray, bias: np.ndarray, connectionName: str, activation: str,
+                 inputSize: int, outputSize: int):
 
         self.inputSize = inputSize
         self.outputSize = outputSize
         self.weight = weight
-        self.outputNames = outputNames
-        self.inputNames = inputNames
         self.connectionName = connectionName  # turn sideways
         self.bias = bias[:, np.newaxis]  # Turn 1D array sideways by making it a 1 wide 2D array
 
@@ -103,4 +99,11 @@ class Connection_Linear():
 
         with open(filePath, "w") as file:
             json.dump(exportData, file)
+
+
+################## Network Summary ##################
+
+class Network_Summary():
+    pass
+
 

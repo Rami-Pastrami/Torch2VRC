@@ -6,7 +6,7 @@ from pathlib import Path
 from Torch2VRC import Loading
 from Torch2VRC import NetworkTrainer
 from Torch2VRC import CompleteExport
-from Torch2VRC import LayersAndConnections
+from Torch2VRC import LayersConnectionsSummary
 
 ASSET_PATH: Path = Path("C:/Users/Rima/Documents/Git Stuff/VRC_NN_RGBTest/Assets/")
 
