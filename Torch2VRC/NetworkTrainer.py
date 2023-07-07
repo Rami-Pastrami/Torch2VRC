@@ -240,7 +240,7 @@ class Torch_VRC_Helper():
                 return layerDef[0: layerDef.find("(")]
 
             def GenerateLinearConnection(conName: str, activationFunctionName: str, conData) -> lac.Connection_Linear:
-                ''' Extracts information from ConnectionData to build Conneciton_Linear Object '''
+                ''' Extracts information from ConnectionData to build Connection_Linear Object '''
                 weights: np.ndarray = conData.weight.detach().numpy()
                 bias: np.ndarray = conData.bias.detach().numpy().transpose()  # transpose so it fits better in CRT
                 inputSize: int = conData.in_features

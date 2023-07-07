@@ -118,7 +118,8 @@ class Network_Summary():
         self.layers = layers
         self.connectionMappings = connectionMappings
         self.connectionActivations = self._GetActivationMappings()
-
+        # TODO add error checking to see if layer sizes match up!
+        # TODO add error checking to see if connection names in connectionMappings are the same as names in connections
 
     def _GetActivationMappings(self) -> dict:
 
