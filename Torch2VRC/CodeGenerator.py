@@ -17,5 +17,14 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
         _ = newFile.write(generatedText)
         newFile.close()
 
-def GenerateNetworkShader(unityNetworkFolderPath: Path, networkName: str):
+def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
+
+    def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, inputConnectionName: str,
+                                outputConnectionName: str, isInputArray: bool = False):
+        # Todo, add activation
+        pass
+
+
+
+
     pass
