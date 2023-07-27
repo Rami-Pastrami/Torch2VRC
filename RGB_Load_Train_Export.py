@@ -61,7 +61,7 @@ RGB_Net = RGB_Builder.Train(RGB_Net, numberEpochs=4000)
 
 
 # Export
-CompleteExport.ExportNetworkToVRC(ASSET_PATH, RGB_Builder, RGB_Net, "Coords2RGB")
+CompleteExport.ExportNetworkToVRC(ASSET_PATH, RGB_Builder, "Coords2RGB")
 
 
 print("convenient breakpoint")
