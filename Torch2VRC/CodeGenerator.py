@@ -19,12 +19,18 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
 
 def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
-    def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, inputConnectionName: str,
-                                outputConnectionName: str, isInputArray: bool = False):
-        # Todo, add activation
+
+    def GenerateActivationStr_Tanh() -> str:
+        return "output = Activation_Tanh(output)"
+
+
+    def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, activationStr: str,
+                                isInputArray: bool = False):
+
         pass
 
 
 
 
     pass
+
