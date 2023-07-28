@@ -1,0 +1,60 @@
+Shader "Rami-Pastrami/Torch2VRC/{{NETWORK_NAME}}/LinearLayer"
+{
+    Properties
+    {
+        _TexWeights("Weights", 2D) = "black" {}
+        _TexBias("Bias", 2D) = "black" {}
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" }
+        Cull Off
+        Lighting Off
+        ZWrite Off
+        ZTest Always
+
+        Pass
+        {
+            CGINCLUDE //The following will be included in all passes of the shader
+            #include "UnityCustomRenderTexture.cginc"
+            #include "NN_Common.cginc"
+            #pragma vertex CustomRenderTextureVertexShader //CRT vertex
+            #pragma fragment frag noshadow
+            #include "UnityCG.cginc"
+
+            {{UDON_BUFFER}}
+
+            Name {{LAYER_NAME}}
+
+            CGPROGRAM
+
+            const int numInputNeurons = {{NUM_INPUT_NEURONS}};
+            const int numOutputNeurons = {{NUM_OUTPUT_NEURONS}};
+
+
+            float frag (v2f_customrendertexture IN) : SV_Target
+            {
+                float1 output = 0.0;
+
+                // Calculate Weight * Input
+                [unroll]
+                for( int weightX = 0; weightX < numInputNeurons; weightX++)
+                {
+                    float2 weightCoordinate = float2((float)weightX, IN.localTexcoord.x); // TODO Optimize!
+                    output += {{INPUT_SOURCE}} * tex2D(_TexWeights, weightCoordinate);
+                }
+
+                // Add Bias
+                float2 biasCoordinate = float2(IN.localTexcoord.x, 0.5);
+                output += tex2D(_TexBias, biasCoordinate);
+
+                // Apply Activation (if Applicable, otherwise this line is blank)
+                {{ACTIVATION}}
+
+                // Return output to relevant pixel
+                return output;
+            }
+        }
+    }
+}
