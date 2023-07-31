@@ -20,12 +20,25 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
 def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
 
-    def GenerateActivationStr_Tanh() -> str:
-        return "output = Activation_Tanh(output)"
+    def GenerateNoActivation() -> str:
+        return ""  # This is just here for code completeness
+
+    def GenerateActivationStr_Tanh(inputName: str = "output") -> str:
+        return "output = Activation_Tanh(" + inputName + ")"
+
 
 
     def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, activationStr: str,
                                 isInputArray: bool = False):
+
+        # Used mainly in the start of a layer sequence, to get input data for the layer from a uniform float array
+        def GetInputFromArray(udonArrayName: str, indexName: str = "weightX") -> str:
+            return udonArrayName + "[" + indexName + "]"
+
+        def GetInputFromTex(texName: str = "_texInput") -> str:
+            return "tex2D(" + texName + ", float2(IN.localTexcoord.x, 0.5))"
+
+
 
         pass
 

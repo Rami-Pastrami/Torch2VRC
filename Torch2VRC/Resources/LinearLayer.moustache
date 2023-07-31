@@ -46,7 +46,7 @@ Shader "Rami-Pastrami/Torch2VRC/{{NETWORK_NAME}}/LinearLayer"
                 }
 
                 // Add Bias
-                float2 biasCoordinate = float2(IN.localTexcoord.x, 0.5);
+                float2 biasCoordinate = float2(IN.localTexcoord.x, 0.5); // TODO Optimize!
                 output += tex2D(_TexBias, biasCoordinate);
 
                 // Apply Activation (if Applicable, otherwise this line is blank)
