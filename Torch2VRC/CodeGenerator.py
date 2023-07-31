@@ -1,5 +1,6 @@
 import chevron as ch
 from pathlib import Path
+from common import Activation, InputSource, LayerTypes
 
 def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str):
 
@@ -21,43 +22,88 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
     moustachePath: Path = Path.cwd() / "Torch2VRC/Resources/LinearLayer.moustache"
 
-    def GenerateNoActivation() -> str:
-        return ""  # This is just here for code completeness
+    # Following ActivationStr functions return string needed to run activation function
+    def ActivationStr_None() -> str:
+        return "\n"  # This is just here for code completeness
 
-    def GenerateActivationStr_Tanh(inputName: str = "output") -> str:
+    def ActivationStr_TanH(inputName: str = "output") -> str:
         return f"output = Activation_Tanh({{inputName}})"
 
-    "sampler2D _inputTex;"
 
-    def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, activationStr: str,
-                                isInputArray: bool = False):
+    # Buffer Array Def is used to define input buffers (or lack thereof)
+    def BufferArrayDef(size: int, name: str) -> str:
+        return "cbuffer BUFFER{ float1 " + name + "[" + str(size) + "]; // Data from CPU"
+
+    def BufferNoDef() -> str:
+        return ""
+
+    # Texture input definition (or lack thereof)
+    def TexInputDef(varName: str = "_tex") -> str:
+        return "uniform sampler2D " + varName
+
+    def TexInputNoDef() -> str:
+        return ""
+
+
+    def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, activationType: Activation,
+                                inputType: InputSource, networkName: str, layerName: str):
         '''
         Generates a Shader / CRT combo running a Linear Layer of the neural network
         :param inputConnectionLength: int - number of input neurons
         :param outputConnectionLength: int = number of output neurons
-        :param activationStr: Type of activation function (or lack thereof)
+        :param activationType: Type of activation function (or lack thereof)
         :param isInputArray: bool - if the input is not another CRT but rather an
         :return:
         '''
 
-        # Used mainly in the start of a layer sequence, to get input data for the layer from a uniform float array
+        # The Property functions are used to create the property block
+
+        def Property_TexInput(texName: str = "_TexWeights", texFriendlyName: str = "Weights") -> str:
+            return texName + "(\"" + texFriendlyName + "\", 2D = \"black\" {}"  # Fstrings aare a bit messy here
+
+        def Property_ArrayInput() -> str:
+            return "\n"
+
+        # The GetInput functions are used for defining the input in the for loop
+
+        # Used whenever the input is another CRT
+        def GetInputFromTex(texName: str = "_TexWeights") -> str:
+            return f"tex2D({{texName}}, float2(IN.localTexcoord.x, 0.5))"
+
         def GetInputFromArray(udonArrayName: str, indexName: str = "weightX") -> str:
             return f"{{udonArrayName}}[{{indexName}}]"
 
-        # Used whenever the input is another CRT
-        def GetInputFromTex(texName: str = "_texInput") -> str:
-            return f"tex2D({{texName}}, float2(IN.localTexcoord.x, 0.5))"
+        # inputs for template generation
+        _NETWORK_NAME: str
+        _PROPERTY_INPUT: str
+        _UDON_BUFFER: str
+        _LOOP_INPUT_SOURCE: str
+        _INPUT_TEXTURE_DEFINITION: str
+        _LAYER_NAME: str
+        _NUM_INPUT_NEURONS: str
+        _ACTIVATION: str
 
-        
+        _NETWORK_NAME = networkName
+
+        match inputType:
+            case InputSource.CRT:
+                _PROPERTY_INPUT = Property_TexInput()
+                _UDON_BUFFER = BufferNoDef()
+                _INPUT_TEXTURE_DEFINITION = TexInputDef()
+                _LOOP_INPUT_SOURCE = GetInputFromTex()
+            case InputSource.UniformArray:
+                _PROPERTY_INPUT = Property_ArrayInput()
+                _UDON_BUFFER = BufferArrayDef(inputConnectionLength, "TODO")  # TODO
+                _INPUT_TEXTURE_DEFINITION: str = TexInputNoDef()
+                _LOOP_INPUT_SOURCE = GetInputFromArray("TODO")  # TODO
+        _LAYER_NAME = layerName
+
+        match activationType:
+            case Activation.NONE: _ACTIVATION = ActivationStr_None()
+            case Activation.TanH: _ACTIVATION = ActivationStr_TanH()
 
 
-
-
-
-
-
-        pass
-
+        # TODO Moustache Templating
 
 
 
