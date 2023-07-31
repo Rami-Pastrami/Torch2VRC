@@ -2,7 +2,7 @@ Shader "Rami-Pastrami/Torch2VRC/{{NETWORK_NAME}}/LinearLayer"
 {
     Properties
     {
-        _TexWeights("Weights", 2D) = "black" {}
+        {{PROPERTY_INPUT}}
         _TexBias("Bias", 2D) = "black" {}
     }
 
@@ -42,7 +42,7 @@ Shader "Rami-Pastrami/Torch2VRC/{{NETWORK_NAME}}/LinearLayer"
                 for( int weightX = 0; weightX < numInputNeurons; weightX++)
                 {
                     float2 weightCoordinate = float2((float)weightX, IN.localTexcoord.x); // TODO Optimize!
-                    output += {{INPUT_SOURCE}} * tex2D(_TexWeights, weightCoordinate);
+                    output += {{LOOP_INPUT_SOURCE}} * tex2D(_TexWeights, weightCoordinate);
                 }
 
                 // Add Bias
