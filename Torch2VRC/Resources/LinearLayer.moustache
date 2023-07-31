@@ -31,7 +31,7 @@ Shader "Rami-Pastrami/Torch2VRC/{{NETWORK_NAME}}/LinearLayer"
 
             const int numInputNeurons = {{NUM_INPUT_NEURONS}};
             const int numOutputNeurons = {{NUM_OUTPUT_NEURONS}};
-
+            {{INPUT_TEXTURE_DEFINITION}}
 
             float frag (v2f_customrendertexture IN) : SV_Target
             {
