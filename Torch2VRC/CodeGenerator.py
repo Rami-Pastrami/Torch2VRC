@@ -20,8 +20,6 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
 
 def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
-    moustachePath: Path = Path.cwd() / "Torch2VRC/Resources/LinearLayer.moustache"
-
     # Following ActivationStr functions return string needed to run activation function
     def ActivationStr_None() -> str:
         return "\n"  # This is just here for code completeness
@@ -63,7 +61,7 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
         '''
 
         if not NetworkExportFolder.exists(): NetworkExportFolder.mkdir()
-        shaderFilePath: Path = NetworkExportFolder / (layerName + ".shader")
+        shaderFilePath: Path = NetworkExportFolder / ("Layers/" + layerName + "/" + layerName + ".shader")
         with open (moustacheFileLocation, 'r') as template:
             generatedShader: str = ch.render(template, substitutions)
 
@@ -76,18 +74,21 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
         newShaderFile.close()
 
 
-    def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, activationType: Activation,
+    def GenerateLinearLayerCode(networkUnityFolder: Path, inputConnectionLength: int, outputConnectionLength: int, activationType: Activation,
                                 inputType: InputSource, networkName: str, layerName: str,
                                 bufferName: str = "_Udon_Buffer") -> None:
         '''
         Generates a Shader / CRT combo running a Linear Layer of the neural network
+        :param networkUnityFolder: Path - Path to the root network folder within the Unity Project
         :param inputConnectionLength: int - number of input neurons
         :param outputConnectionLength: int = number of output neurons
-        :param activationType: Type of activation function (or lack thereof)
-        :param isInputArray: bool - if the input is not another CRT but rather an
-        :return: None
+        :param activationType: Activation - Type of activation function (or lack thereof)
+        :param inputType: InputSource - The method of input to this layer
+        :param networkName: str - Name of the network
+        :param layerName: str = Name of the layer
+        :param bufferName: str - if using array input
+        :return:
         '''
-
         # The GetInput functions are used for defining the input in the for loop
 
         # Used whenever the input is another CRT
@@ -98,16 +99,16 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
             return f"{{udonArrayName}}[{{indexName}}]"
 
         # inputs for template generation
-        _NETWORK_NAME: str
-        _PROPERTY_INPUT: str
-        _UDON_BUFFER: str
-        _LOOP_INPUT_SOURCE: str
-        _INPUT_TEXTURE_DEFINITION: str
-        _LAYER_NAME: str
-        _NUM_INPUT_NEURONS: str
-        _ACTIVATION: str
+        _NETWORK_NAME: str = ""
+        _PROPERTY_INPUT: str = ""
+        _UDON_BUFFER: str = ""
+        _LOOP_INPUT_SOURCE: str = ""
+        _INPUT_TEXTURE_DEFINITION: str = ""
+        _LAYER_NAME: str = ""
+        _NUM_INPUT_NEURONS: str = ""
+        _NUM_OUTPUT_NEURONS: str = ""
+        _ACTIVATION: str = ""
 
-        _NETWORK_NAME = networkName
 
         match inputType:
             case InputSource.CRT:
@@ -120,17 +121,31 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
                 _UDON_BUFFER = BufferArrayDef(inputConnectionLength, bufferName)
                 _INPUT_TEXTURE_DEFINITION: str = TexInputNoDef()
                 _LOOP_INPUT_SOURCE = GetLayerInputFromArray(bufferName)
-        _LAYER_NAME = layerName
+            case _:
+                raise Exception("Unknown Input Type!")
 
         match activationType:
             case Activation.NONE: _ACTIVATION = ActivationStr_None()
             case Activation.TanH: _ACTIVATION = ActivationStr_TanH()
+            case _: raise Exception("Unknown Activation Type!")
 
+        _LAYER_NAME = layerName
+        _NETWORK_NAME = networkName
+        _NUM_INPUT_NEURONS = str(inputConnectionLength)
+        _NUM_OUTPUT_NEURONS = str(outputConnectionLength)
 
+        substitutions: dict = {
+            "NETWORK_NAME": _NETWORK_NAME,
+            "PROPERTY_INPUT": _PROPERTY_INPUT,
+            "UDON_BUFFER": _UDON_BUFFER,
+            "LOOP_INPUT_SOURCE": _LOOP_INPUT_SOURCE,
+            "INPUT_TEXTURE_DEFINITION": _INPUT_TEXTURE_DEFINITION,
+            "LAYER_NAME": _LAYER_NAME,
+            "NUM_INPUT_NEURONS": _NUM_INPUT_NEURONS,
+            "NUM_OUTPUT_NEURONS": _NUM_OUTPUT_NEURONS,
+            "ACTIVATION": _ACTIVATION
+        }
 
-        # TODO Moustache Templating
+        moustachePath: Path = Path.cwd() / "Torch2VRC/Resources/LinearLayer.moustache"
 
-
-
-    pass
-
+        GenerateLayerFromMoustache(moustachePath, networkUnityFolder, layerName, substitutions)
