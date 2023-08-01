@@ -13,3 +13,10 @@ class LayerTypes(Enum):
 class InputSource(Enum):
     CRT: 0
     UniformArray = 1
+
+def str2Activation(input: str) -> Activation:
+    a: str = input.lower()
+    match a:
+        case "none": return Activation.NONE
+        case "tanh": return Activation.TanH
+        case _: raise Exception("Unknown Activation Type!")

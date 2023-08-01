@@ -3,6 +3,7 @@ from Torch2VRC.ImageExport import ExportNPArrayAsPNG
 import numpy as np
 from pathlib import Path
 import json
+from Torch2VRC.common import Activation, str2Activation
 
 ###################### Layers #######################
 
@@ -53,7 +54,7 @@ class Connection_Linear():
     weightNormalizer: float = None
     biasNormalizer: float = None
     combinedWeightBias: np.ndarray = None
-    activation: str = None  # can be 'none' or 'tanh'
+    activation: Activation = None
 
     def __init__(self, weight: np.ndarray, bias: np.ndarray, connectionName: str, activation: str,
                  inputSize: int, outputSize: int):
@@ -64,10 +65,7 @@ class Connection_Linear():
         self.connectionName = connectionName  # turn sideways
         self.bias = bias[:, np.newaxis]  # Turn 1D array sideways by making it a 1 wide 2D array
 
-        if activation not in ["none", "tanh"]:
-            raise Exception(f"Unknown activation type {activation}!")
-
-        self.activation = activation
+        self.activation = str2Activation(activation)
         self.weightNormalizer = calculateNormalizer(self.weight)
         self.biasNormalizer = calculateNormalizer(self.bias)
 

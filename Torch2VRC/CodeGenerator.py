@@ -1,6 +1,6 @@
 import chevron as ch
 from pathlib import Path
-from common import Activation, InputSource, LayerTypes
+from Torch2VRC.common import Activation, InputSource, LayerTypes
 
 def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str):
 
