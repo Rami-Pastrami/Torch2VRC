@@ -167,64 +167,6 @@ class Torch_VRC_Helper():
         print("Export complete!")
         return network
 
-
-    # # TODO temporary, switch to a tree structure later!
-    # def ExportNetworkLayersNetworkTree(self, initialLayer, network) -> list:
-    #     '''
-    #     Outputs structure describing how network is wired together
-    #     :param initialLayer: initial layer object, using class from LayersAndConnections
-    #     :param network: trained PyTorch network
-    #     :return:
-    #     '''
-    #
-    #     def _GetLayerType(specificLayer) -> str:
-    #         ''' Stupid cursed method for finding the layer connection type '''
-    #         layerDef: str = str(specificLayer)
-    #         return layerDef[0: layerDef.find("(")]
-    #
-    #     namedModules: list = list(network.named_modules())
-    #     output: list = [initialLayer]
-    #
-    #     # shitty loop to skip the first index
-    #     for i in range(1, len(namedModules)):
-    #         # define base dict structure
-    #         connectionName: str = namedModules[i][0]
-    #         connectionData = namedModules[i][1]
-    #         layerType = _GetLayerType(connectionData)
-    #
-    #         if layerType == "Linear":
-    #             # Get prereqs for connection object
-    #             weights = connectionData.weight.detach().numpy()
-    #             bias = connectionData.bias.detach().numpy().transpose()  # transpose so it fits better in CRT
-    #             inputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["i"]
-    #             outputs: list[str] = self.connectionConnectionsAndActivations[connectionName]["o"]
-    #             inputSize: int = connectionData.in_features
-    #             outputSize: int = connectionData.out_features
-    #             activation: str = "none"
-    #             if "activation" in self.connectionConnectionsAndActivations[connectionName]:
-    #                 activation = self.connectionConnectionsAndActivations[connectionName]["activation"]
-    #             connection = lac.Connection_Linear(weights, bias, connectionName, outputs, inputs, activation,
-    #                                                inputSize, outputSize)
-    #
-    #             # get prereqs for output layer object
-    #             outputLayer = None
-    #
-    #             if self.connectionConnectionsAndActivations[connectionName] == "uniformFloatArray":
-    #                 # input is a float array
-    #                 outputLayer = lac.Layer_FloatArray(inputSize, f"{connectionName}_Layer", f"_Udon_{connectionName}")
-    #             elif self.connectionConnectionsAndActivations[connectionName] == "1D":
-    #                 # input is another 1D crt
-    #                 priorConnections: list = [connectionName]  # temp, replace with tree stuff later
-    #                 outputLayer = lac.Layer_1D(inputSize, f"{connectionName}_Layer", priorConnections)
-    #
-    #             output.append(connection)
-    #             output.append(outputLayer)
-    #             continue
-    #
-    #         raise Exception(f"Unsupported Layer Type {layerType}!")
-    #
-    #     return output
-
     def _ExportNetworkAsSummary(self, network) -> lac.Network_Summary:
 
         def ExtractConnectionsFromNetwork(net, activationsPerConnection: dict) -> dict:
