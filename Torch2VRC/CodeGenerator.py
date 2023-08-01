@@ -46,7 +46,8 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
 
     def GenerateLinearLayerCode(inputConnectionLength: int, outputConnectionLength: int, activationType: Activation,
-                                inputType: InputSource, networkName: str, layerName: str):
+                                inputType: InputSource, networkName: str, layerName: str,
+                                bufferName: str = "_Udon_Buffer"):
         '''
         Generates a Shader / CRT combo running a Linear Layer of the neural network
         :param inputConnectionLength: int - number of input neurons
@@ -93,7 +94,7 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
                 _LOOP_INPUT_SOURCE = GetInputFromTex()
             case InputSource.UniformArray:
                 _PROPERTY_INPUT = Property_ArrayInput()
-                _UDON_BUFFER = BufferArrayDef(inputConnectionLength, "TODO")  # TODO
+                _UDON_BUFFER = BufferArrayDef(inputConnectionLength, bufferName)  # TODO
                 _INPUT_TEXTURE_DEFINITION: str = TexInputNoDef()
                 _LOOP_INPUT_SOURCE = GetInputFromArray("TODO")  # TODO
         _LAYER_NAME = layerName
