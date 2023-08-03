@@ -38,8 +38,9 @@ RGB_Net = RGB_NN(NUM_INPUT, NUM_HIDDEN, NUM_OUTPUT)
 importedLog: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 
 # These will have matching names with the layer names defined in the network
-connectionActivations: dict = {  # if you do not define one for a layer, it will default to "none"
+connectionActivations: dict = {
     "innerConnections": "tanh",
+    "outerConnections": "none"
 }
 
 layerObjects: list = [

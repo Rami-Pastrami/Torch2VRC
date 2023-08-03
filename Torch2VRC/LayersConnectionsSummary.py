@@ -56,7 +56,7 @@ class Connection_Linear():
     combinedWeightBias: np.ndarray = None
     activation: Activation = None
 
-    def __init__(self, weight: np.ndarray, bias: np.ndarray, connectionName: str, activation: str,
+    def __init__(self, weight: np.ndarray, bias: np.ndarray, connectionName: str, activation: Activation,
                  inputSize: int, outputSize: int):
 
         self.inputSize = inputSize
@@ -65,7 +65,7 @@ class Connection_Linear():
         self.connectionName = connectionName  # turn sideways
         self.bias = bias[:, np.newaxis]  # Turn 1D array sideways by making it a 1 wide 2D array
 
-        self.activation = str2Activation(activation)
+        self.activation = activation
         self.weightNormalizer = calculateNormalizer(self.weight)
         self.biasNormalizer = calculateNormalizer(self.bias)
 

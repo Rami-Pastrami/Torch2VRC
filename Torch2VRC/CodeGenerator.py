@@ -1,6 +1,6 @@
 import chevron as ch
 from pathlib import Path
-from Torch2VRC.common import Activation, InputSource, LayerTypes
+from Torch2VRC.common import Activation, ConnectionTypes, LayerTypes
 
 def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str):
 
@@ -18,7 +18,7 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
         _ = newFile.write(generatedText)
         newFile.close()
 
-def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
+def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str, layerObject, layerType: LayerTypes):
 
     # Following ActivationStr functions return string needed to run activation function
     def ActivationStr_None() -> str:
@@ -75,7 +75,7 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
 
     def GenerateLinearLayerCode(networkUnityFolder: Path, inputConnectionLength: int, outputConnectionLength: int, activationType: Activation,
-                                inputType: InputSource, networkName: str, layerName: str,
+                                inputType: LayerTypes, networkName: str, layerName: str,
                                 bufferName: str = "_Udon_Buffer") -> None:
         '''
         Generates a Shader / CRT combo running a Linear Layer of the neural network
@@ -111,12 +111,12 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
 
 
         match inputType:
-            case InputSource.CRT:
+            case LayerTypes.CRT:
                 _PROPERTY_INPUT = Property_TexInput()
                 _UDON_BUFFER = BufferNoDef()
                 _INPUT_TEXTURE_DEFINITION = TexInputDef()
                 _LOOP_INPUT_SOURCE = GetLayerInputFromTex()
-            case InputSource.UniformArray:
+            case LayerTypes.UniformArray:
                 _PROPERTY_INPUT = Property_ArrayInput()
                 _UDON_BUFFER = BufferArrayDef(inputConnectionLength, bufferName)
                 _INPUT_TEXTURE_DEFINITION: str = TexInputNoDef()
@@ -149,3 +149,10 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str):
         moustachePath: Path = Path.cwd() / "Torch2VRC/Resources/LinearLayer.moustache"
 
         GenerateLayerFromMoustache(moustachePath, networkUnityFolder, layerName, substitutions)
+
+    # TODO loop through layer objects, skip array "layers"
+
+    # Skip any
+
+
+    pass

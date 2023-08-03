@@ -6,11 +6,11 @@ class Activation(Enum):
     TanH = 1
 
 # Supported Layer Types
-class LayerTypes(Enum):
+class ConnectionTypes(Enum):
     Linear = 0
 
 # Source of input for layer
-class InputSource(Enum):
+class LayerTypes(Enum):
     CRT: 0
     UniformArray = 1
 

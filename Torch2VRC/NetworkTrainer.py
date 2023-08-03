@@ -2,6 +2,7 @@ import numpy as np
 import torch as pt
 from torch import nn
 from torch import optim
+from Torch2VRC.common import Activation, str2Activation
 import Torch2VRC.LayersConnectionsSummary as lac
 
 class Torch_VRC_Helper():
@@ -23,9 +24,13 @@ class Torch_VRC_Helper():
         _ , answerCounts = self.GenerateTestingData(importedData)
         self.trainingData, self.numInputLayers = self.GenerateClassifierTrainingTensors(importedData, answerLookup)
         self.testingData = self.GenerateClassifierTestingTensor(answerCounts)
-        self.connectionActivations = connectionActivations
         self.layerObjects = layerObjects
         self.connectionMappings = connectionMappings
+
+        self.connectionActivations = {}
+        for a in connectionActivations.keys():
+            self.connectionActivations[a] = str2Activation(connectionActivations[a])
+
 
     def GenerateTestingData(self, totalData: dict) -> tuple:
         '''
