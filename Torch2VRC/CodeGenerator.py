@@ -1,6 +1,8 @@
 import chevron as ch
 from pathlib import Path
 from Torch2VRC.common import Activation, ConnectionTypes, LayerTypes
+from Torch2VRC.NetworkTrainer import Torch_VRC_Helper
+import Torch2VRC.LayersConnectionsSummary as LCS
 
 def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str):
 
@@ -18,7 +20,7 @@ def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str
         _ = newFile.write(generatedText)
         newFile.close()
 
-def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str, layerObject, layerType: LayerTypes):
+def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str, helper: Torch_VRC_Helper):
 
     # Following ActivationStr functions return string needed to run activation function
     def ActivationStr_None() -> str:
@@ -150,9 +152,14 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str, layer
 
         GenerateLayerFromMoustache(moustachePath, networkUnityFolder, layerName, substitutions)
 
-    # TODO loop through layer objects, skip array "layers"
+    # Loop through layers, but skip float array type layers since we cannot write to them
+    for layerObj in helper.layerObjects:
+        match type(layerObj):
+            case LCS.Layer_FloatArray:
+                continue
+            case LCS.Layer_1D:
+                break
 
-    # Skip any
 
 
     pass
