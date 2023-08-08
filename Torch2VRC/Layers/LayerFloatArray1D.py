@@ -7,8 +7,8 @@ class LayerFloatArray1D(LayerBase):
     num_neurons: int
     array_name: str # name of the uniform array the shader calls, should start with "_Udon_"
 
-    def __init__(self, layer_name: str, num_neurons: int, array_name: str = "_Udon_input"):
-        super().__init__(layer_name)
+    def __init__(self, layer_name: str, network_root: Path, num_neurons: int, array_name: str = "_Udon_input"):
+        super().__init__(layer_name, network_root)
         self.num_neurons = num_neurons
         self.is_CRT = False
         self.is_float_array = True
@@ -17,7 +17,9 @@ class LayerFloatArray1D(LayerBase):
             raise Exception("All Uniform Array Names must start with '_Udon_' due to VRC restrictions!")
         array_name = array_name
 
-    def generate_unity_file_resources(self, network_root: Path) -> None:
+    def generate_unity_file_resources(self) -> None:
         # Uniform Arrays do not need anything written to the file system
-        pass
+        self.generate_unity_layer_folder()
+        # TODO perhaps generate a note that this folder has no resources?
+
 
