@@ -12,7 +12,7 @@ class LayerBase:
 
     def __init__(self, layer_name: str, network_root: Path):
         self.layer_name = layer_name
-        self.layer_folder = network_root / f"/Layers/{{self.layer_name}}"
+        self.layer_folder = network_root / f"/Layers/{{self.layer_name}}/"
 
     def generate_unity_file_resources(self) -> None:
         """

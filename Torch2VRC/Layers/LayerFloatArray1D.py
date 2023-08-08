@@ -15,11 +15,12 @@ class LayerFloatArray1D(LayerBase):
         self.is_read_only = True  # You cannot write to a uniform array
         if array_name[0:6] != "_Udon_":
             raise Exception("All Uniform Array Names must start with '_Udon_' due to VRC restrictions!")
-        array_name = array_name
+        self.array_name = array_name
 
     def generate_unity_file_resources(self) -> None:
         # Uniform Arrays do not need anything written to the file system
         self.generate_unity_layer_folder()
-        # TODO perhaps generate a note that this folder has no resources?
+        hint_file: Path = self.layer_folder / "Float_Array_Layers_Need_No_Files.txt"
+        hint_file.touch(exist_ok=True)
 
 
