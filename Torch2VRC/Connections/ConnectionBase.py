@@ -3,20 +3,24 @@ from Torch2VRC.Layers.LayerBase import LayerBase
 from Torch2VRC.Activation.ActivationBase import ActivationBase
 
 class ConnectionBase:
-
+    """
+    Base Connection Class. Not much here, mostly exists as a common root for easy reference
+    """
 
     connection_name: str
     input_layers: list[LayerBase]
     output_layer: LayerBase
     activation_function: ActivationBase
+    connection_folder: Path
 
     def __init__(self, connection_name: str, input_layers: list[LayerBase], output_layer: LayerBase,
-                 activation_function: ActivationBase):
+                 activation_function: ActivationBase, network_root: Path):
 
         self.connection_name = connection_name
         self.input_layers = input_layers
         self.output_layer = output_layer
         self.ActivationBase = activation_function
+        self.connection_folder = network_root / f"/Connections/{{self.connection_name}}/"
 
     def generate_unity_file_resources(self, network_root: Path) -> None:
         """
