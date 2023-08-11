@@ -1,4 +1,3 @@
-import numpy as np
 import torch as pt
 from torch import nn
 from torch import optim
@@ -93,4 +92,4 @@ class TrainerBase:
             case _:
                 raise Exception("Unaccounted for number of inputs given!")
 
-        self.network = self.network  # lol
+        self.network = network
