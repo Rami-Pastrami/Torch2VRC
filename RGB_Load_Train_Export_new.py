@@ -1,6 +1,5 @@
 from torch import nn
 import torch as pt
-from collections import OrderedDict
 from pathlib import Path
 
 from Torch2VRC import Loading
@@ -20,8 +19,8 @@ class RGB_NN(nn.Module):
         self.innerConnections = nn.Linear(numInputs, numNeuronsHidden)
         self.outerConnections = nn.Linear(numNeuronsHidden, numAnswers)
 
-    def forward(self, tensor_input_by_layer_name):
-        hiddenLayer: pt.Tensor = pt.tanh(self.innerConnections(tensor_input_by_layer_name["inputLayer"]))  # add activation function
+    def forward(self, tensor_input_by_layer_name: dict):
+        hiddenLayer: pt.Tensor = pt.tanh(self.innerConnections(tensor_input_by_layer_name["inputLayer"]))  # notice how the activation is part of this layer
         return self.outerConnections(hiddenLayer)
 
 
@@ -76,7 +75,7 @@ RGB_Net = RGB_NN(NUM_INPUT, NUM_HIDDEN, NUM_OUTPUT)
 
 
 # Train Network
-trainer = TrainerClassifier(RGB_Net, imported_log, )
+trainer = TrainerClassifier(RGB_Net, imported_log)
 # using the classifier trainer for some classifier specific functions
 
 RGB_Net =

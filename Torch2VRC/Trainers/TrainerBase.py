@@ -10,7 +10,6 @@ class TrainerBase:
     training_input_tensors_by_input_layer: dict  # ordered in order of pytorch network model training input
     training_output_tensor: pt.Tensor  # Also known as testing data
 
-
     def __init__(self, network: pt.nn, raw_training_data: dict):
         self.network = network
         self.raw_training_data = raw_training_data
@@ -19,7 +18,7 @@ class TrainerBase:
         """
         Exports a dict of tensors (keys by input layer name) that each input layer will use for training
         :param raw_log_keys_mapped_to_input_layers:
-        :return:
+        :return: dict of training input tensors key'd by layer, also stored to self.training_input_tensors_by_input_layer
         """
 
         def _selection_of_training_data_by_key_to_tensor(original_training_data: dict,
@@ -64,6 +63,7 @@ class TrainerBase:
                 raise Exception(f"Input layer {{input_layer_name}} does not have the same height as the other layers, and will fail training as a result")
 
         self.training_input_tensors_by_input_layer = output
+        return output
 
     def train_network(self, number_epochs: int = 2000, learning_rate: float = 0.0001,
                       loss_function=nn.MSELoss()) -> None:
@@ -73,7 +73,7 @@ class TrainerBase:
         :param number_epochs: num epochs to train. Defaults to 2000
         :param learning_rate: Learning rate. Defaults to 0.0001
         :param loss_function: function to use, defaults to nn.MSELoss()
-        :return:
+        :return: trained network to self.network
         """
         def _training(net,  numEpochs: int, optimizer, lossFunction, inputs: dict, testing_predictions: pt.Tensor):
 
