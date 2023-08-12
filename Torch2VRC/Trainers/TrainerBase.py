@@ -7,7 +7,7 @@ class TrainerBase:
 
     network: pt.nn
     raw_training_data: dict
-    training_input_tensors_by_input_layer: dict  # ordered in order of pythorch network model training input
+    training_input_tensors_by_input_layer: dict  # ordered in order of pytorch network model training input
     training_output_tensor: pt.Tensor  # Also known as testing data
 
 
@@ -15,7 +15,7 @@ class TrainerBase:
         self.network = network
         self.raw_training_data = raw_training_data
 
-    def sort_raw_training_data_into_input_tensors(self, raw_log_keys_mapped_to_input_layers: dict) -> dict:
+    def sort_raw_training_data_into_input_tensors(self, raw_log_keys_mapped_to_input_layers: dict) -> None:
         """
         Exports a dict of tensors (keys by input layer name) that each input layer will use for training
         :param raw_log_keys_mapped_to_input_layers:
@@ -63,48 +63,22 @@ class TrainerBase:
             if output[input_layer_name].size(dim=1) != height:
                 raise Exception(f"Input layer {{input_layer_name}} does not have the same height as the other layers, and will fail training as a result")
 
-        return output
+        self.training_input_tensors_by_input_layer = output
 
-
-    def train_network(self, testing_inputs: list[pt.Tensor], testing_predictions: pt.Tensor,
-                      number_epochs: int = 2000, learning_rate: float = 0.0001, loss_function=nn.MSELoss()) -> None:
+    def train_network(self, number_epochs: int = 2000, learning_rate: float = 0.0001,
+                      loss_function=nn.MSELoss()) -> None:
         """
-        Trains self.network of up to 3 input layers of complexity
-        :param testing_inputs: list of inputs (as Tensors), where each element index MUST be in the same input index
-        order for running network model directly
+        Trains contained network of up to 3 input layers of complexity
         :param testing_predictions: the singular expected output tenser expected for the input tensor(s)
         :param number_epochs: num epochs to train. Defaults to 2000
         :param learning_rate: Learning rate. Defaults to 0.0001
         :param loss_function: function to use, defaults to nn.MSELoss()
         :return:
         """
-        def _Train1Input(net,  numEpochs: int, optimizer, lossFunction, input1: pt.Tensor):
+        def _training(net,  numEpochs: int, optimizer, lossFunction, inputs: dict, testing_predictions: pt.Tensor):
 
             for epochI in range(numEpochs):
-                lossI = lossFunction(testing_predictions, net(input1))
-                optimizer.zero_grad()
-                lossI.backward()
-                optimizer.step()
-                print(lossI.item())
-            print("Training Complete!")
-            return net
-
-        def _Train2Input(net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor):
-
-            for epochI in range(numEpochs):
-                lossI = lossFunction(testing_predictions, net(input1, input2))
-                optimizer.zero_grad()
-                lossI.backward()
-                optimizer.step()
-                print(lossI.item())
-            print("Training Complete!")
-            return net
-
-        def _Train3Input(net, numEpochs: int, optimizer, lossFunction, input1: pt.Tensor, input2: pt.Tensor,
-                         input3: pt.Tensor):
-
-            for epochI in range(numEpochs):
-                lossI = lossFunction(testing_predictions, net(input1, input2, input3))
+                lossI = lossFunction(testing_predictions, net(inputs))
                 optimizer.zero_grad()
                 lossI.backward()
                 optimizer.step()
@@ -113,20 +87,9 @@ class TrainerBase:
             return net
 
         optimizer = optim.SGD(self.network.parameters(), lr=learning_rate)
-        number_input_layers: int = len(testing_inputs)
 
-        match(number_input_layers):
-            case 1:
-                network = _Train1Input(self.network, number_epochs, optimizer, loss_function, testing_inputs[0])
-            case 2:
-                network = _Train2Input(self.network, number_epochs, optimizer, loss_function, testing_inputs[0],
-                                       testing_inputs[1])
-            case 3:
-                network = _Train3Input(self.network, number_epochs, optimizer, loss_function, testing_inputs[0],
-                                       testing_inputs[1], testing_inputs[2])
-            case _:
-                raise Exception("Unaccounted for number of inputs given!")
-
+        network = _training(self.network, number_epochs, optimizer, loss_function,
+                            self.training_input_tensors_by_input_layer, self.training_output_tensor)
         self.network = network
 
     def _counts_each_trial(self) -> dict:
