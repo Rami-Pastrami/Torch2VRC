@@ -1,12 +1,9 @@
-from Torch2VRC import Trainers
+from Torch2VRC.Trainers.TrainerBase import TrainerBase
 import torch as pt
 import numpy as np
-from collections import OrderedDict
-from torch import nn
-from torch import optim
 
-class TrainerClassifier(Trainers.TrainerBase):
 
+class TrainerClassifier(TrainerBase):
 
     def __init__(self, network: pt.nn, raw_training_data: dict):
         super().__init__(network, raw_training_data)
