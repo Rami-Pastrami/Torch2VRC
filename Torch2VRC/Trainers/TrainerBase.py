@@ -14,7 +14,7 @@ class TrainerBase:
         self.network = network
         self.raw_training_data = raw_training_data
 
-    def sort_raw_training_data_into_input_tensors(self, raw_log_keys_mapped_to_input_layers: dict) -> None:
+    def sort_raw_training_data_into_input_tensors(self, raw_log_keys_mapped_to_input_layers: dict) -> dict:
         """
         Exports a dict of tensors (keys by input layer name) that each input layer will use for training
         :param raw_log_keys_mapped_to_input_layers:
