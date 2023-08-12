@@ -5,43 +5,32 @@ from collections import OrderedDict
 from torch import nn
 from torch import optim
 
-class TrainerBase(Trainers.TrainerBase):
+class TrainerClassifier(Trainers.TrainerBase):
 
 
-    def __init__(self, network: pt.nn, raw_training_data: dict, possible_network_outputs: dict):
-        super().__init__(network, raw_training_data, possible_network_outputs)
+    def __init__(self, network: pt.nn, raw_training_data: dict):
+        super().__init__(network, raw_training_data)
 
+    def generate_classifier_testing_tensor(self, possible_outputs: list[str]) -> pt.Tensor:
 
-    def generate_counts_of_input_trials(self, trials: dict) -> OrderedDict:
-        """
-        Returns a dict of counts of the number of trials of each trial name
-        :param trials: a (possibly slice) of trials
-        :return:
-        """
-        output: OrderedDict = OrderedDict()
-        for trial in trials.keys():
-            output[trial] = len(trials[trial])
-        return output
+        width: int = len(possible_outputs)
+        total_height: int = 0
 
+        # calculate total height
+        for key in self.raw_training_data.keys():
+            total_height += len(self.raw_training_data[key])
 
-    def generate_classifier_testing_input(self, counts_of_trials_keyd_to_answer: OrderedDict) -> pt.Tensor:
-        """
-        generates a classifiers answer
-        :param counts_of_trials_keyd_to_answer:
-        :return:
-        """
-        height: int = 0
-        for trial in counts_of_trials_keyd_to_answer.keys():
-            height += counts_of_trials_keyd_to_answer[trial]
+        # create 2D array of required size
+        arr: np.ndarray = np.zeros([width, total_height])
 
-        arr_out: np.ndarray = np.zeros((len(counts_of_trials_keyd_to_answer), height))
+        # set correct values to 1
+        index: int = 0
+        current_starting_height: int = 0
+        for possible_output in possible_outputs:
+            arr[index, current_starting_height: len(self.raw_training_data[possible_output]) + current_starting_height] = 1
+            current_starting_height += len(self.raw_training_data[possible_output])
 
-        height = 0
-        counter: int = 0
-        for trial in counts_of_trials_keyd_to_answer.keys():
-            arr_out[counter, height:(height + counts_of_trials_keyd_to_answer[trial])] = 1
-            counter += 1
-            height += counts_of_trials_keyd_to_answer[trial]
+        self.training_output_tensor = pt.Tensor(arr)
+        return self.training_output_tensor
 
-        return pt.Tensor(arr_out)
 
