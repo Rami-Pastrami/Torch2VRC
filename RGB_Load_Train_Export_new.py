@@ -75,10 +75,12 @@ RGB_Net = RGB_NN(NUM_INPUT, NUM_HIDDEN, NUM_OUTPUT)
 
 
 # Train Network
-trainer = TrainerClassifier(RGB_Net, imported_log)
+trainer: TrainerClassifier = TrainerClassifier(RGB_Net, imported_log)
+trainer.sort_raw_training_data_into_input_tensors(raw_log_keys_mapped_to_input_layers)
+trainer.generate_classifier_testing_tensor(possible_outputs)
+trainer.train_network()
 # using the classifier trainer for some classifier specific functions
 
-RGB_Net =
 
 
 
