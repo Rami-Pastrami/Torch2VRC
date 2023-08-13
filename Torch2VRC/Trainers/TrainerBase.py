@@ -46,7 +46,8 @@ class TrainerBase:
             h_index: int = 0
             for key in keys_to_export:
                 for trial in original_training_data[key]:
-                    arr[:,h_index] = np.asarray(trial)
+                    arr[:, h_index] = np.asarray(trial)
+                    h_index += 1
 
             # export as tensor
             return pt.Tensor(arr)
@@ -57,7 +58,7 @@ class TrainerBase:
                                                                                     raw_log_keys_mapped_to_input_layers[input_layer_name])
 
         # Verify heights of all tensors are consistent, because otherwise training will fail
-        height: int = output[0].size(dim=1)
+        height: int = (list(output.values()))[0].size(dim=1)
         for input_layer_name in output.keys():
             if output[input_layer_name].size(dim=1) != height:
                 raise Exception(f"Input layer {{input_layer_name}} does not have the same height as the other layers, and will fail training as a result")
