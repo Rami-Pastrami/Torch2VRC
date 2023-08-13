@@ -27,7 +27,7 @@ class TrainerClassifier(TrainerBase):
             arr[index, current_starting_height: len(self.raw_training_data[possible_output]) + current_starting_height] = 1
             current_starting_height += len(self.raw_training_data[possible_output])
 
-        self.training_output_tensor = pt.Tensor(arr)
+        self.training_output_tensor = pt.Tensor(arr.transpose())
         return self.training_output_tensor
 
 

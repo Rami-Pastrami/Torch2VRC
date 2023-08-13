@@ -50,7 +50,7 @@ class TrainerBase:
                     h_index += 1
 
             # export as tensor
-            return pt.Tensor(arr)
+            return pt.Tensor(arr.transpose())
         # Generate output dict of tensors
         output: dict = {}
         for input_layer_name in raw_log_keys_mapped_to_input_layers.keys():
@@ -70,7 +70,6 @@ class TrainerBase:
                       loss_function=nn.MSELoss()) -> None:
         """
         Trains contained network of up to 3 input layers of complexity
-        :param testing_predictions: the singular expected output tenser expected for the input tensor(s)
         :param number_epochs: num epochs to train. Defaults to 2000
         :param learning_rate: Learning rate. Defaults to 0.0001
         :param loss_function: function to use, defaults to nn.MSELoss()
