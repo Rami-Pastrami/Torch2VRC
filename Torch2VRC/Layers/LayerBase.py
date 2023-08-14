@@ -14,12 +14,13 @@ class LayerBase:
     layer_name: str
     layer_folder: Path
     is_input: bool
+    neuron_count_per_dimension: list[int] = []
 
-
-    def __init__(self, layer_name: str, network_root: Path):
+    def __init__(self, layer_name: str, network_root: Path, neuron_count_per_dimension: list[int]):
         self.layer_name = layer_name
         self.layer_folder = network_root / f"/Layers/{{self.layer_name}}/"
         self.generate_unity_layer_folder()
+        self.neuron_count_per_dimension = neuron_count_per_dimension
 
     def generate_unity_file_resources(self) -> None:
         """
@@ -36,3 +37,9 @@ class LayerBase:
         Path.mkdir(self.layer_folder, exist_ok=True)
         return self.layer_folder
 
+    @property
+    def total_number_neurons(self):
+        out: int  = 1
+        for d in self.neuron_count_per_dimension:
+            out *= d
+        return out
