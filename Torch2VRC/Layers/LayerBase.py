@@ -15,6 +15,7 @@ class LayerBase:
     layer_folder: Path
     is_input: bool
     neuron_count_per_dimension: list[int] = []
+    dimensions: NumberOfDimensions
 
     def __init__(self, layer_name: str, network_root: Path, neuron_count_per_dimension: list[int]):
         self.layer_name = layer_name
