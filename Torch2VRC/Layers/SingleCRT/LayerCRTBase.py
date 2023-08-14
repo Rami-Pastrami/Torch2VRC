@@ -7,6 +7,3 @@ class LayerCRTBase(LayerBase):
         super().__init__(layer_name, network_root, neuron_count_per_dimension)
         self.is_input = is_input
 
-    def generate_crt(self) -> None:
-        pass
-
