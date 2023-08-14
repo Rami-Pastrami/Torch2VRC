@@ -1,18 +1,25 @@
 from pathlib import Path
+from enum import Enum
 
 class LayerBase:
     """
     Base layer class. Not much here, mostly exists as a common root for easy reference
     """
+
+    class NumberOfDimensions(Enum):
+        ONE_D = 1
+        TWO_D = 2
+        THREE_D = 3
+
     layer_name: str
-    is_read_only: bool
-    is_CRT: bool
-    is_float_array: bool
     layer_folder: Path
+    is_input: bool
+
 
     def __init__(self, layer_name: str, network_root: Path):
         self.layer_name = layer_name
         self.layer_folder = network_root / f"/Layers/{{self.layer_name}}/"
+        self.generate_unity_layer_folder()
 
     def generate_unity_file_resources(self) -> None:
         """
