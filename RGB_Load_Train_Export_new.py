@@ -20,6 +20,14 @@ class RGB_NN(nn.Module):
         return self.outerConnections(hiddenLayer)
 
 
+# Init possible answers from imported log for the classifier network
+possible_outputs: list = ["red", "green", "blue", "magenta", "yellow"]
+
+# LAYER SIZES
+NUM_INPUT: int = 3
+NUM_HIDDEN: int = 10
+NUM_OUTPUT: int = len(possible_outputs)
+
 # layer names of the neural network (think of them as the names of arrays where data is stored between processing),
 # mapped to their type (as they will be in the shader). INPUT LAYER NAMES 'ESPECIALLY' MUST MATCH DICTIONARY KEYS USED
 # IN FORWARD FUNCTION
@@ -27,14 +35,18 @@ layer_definitions: dict = {
     "inputLayer":
         {
             "type": "FloatArray1D",
+            "uniform_name": "_Udon_Input",
+            "number_neurons_per_dimension": [NUM_INPUT]
         },
     "hiddenLayer":
         {
             "type": "CRT1D",
+            "number_neurons_per_dimension": [NUM_HIDDEN]
         },
     "outputLayer":
         {
             "type": "CRT1D",
+            "number_neurons_per_dimension": [NUM_OUTPUT]
         }
 }
 
@@ -58,21 +70,12 @@ connection_mappings: dict = {
 imported_log: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
 # In this demo, this is a stripped log file, but full logs can be used
 
-# Init possible answers from imported log for the classifier network
-possible_outputs: list = ["red", "green", "blue", "magenta", "yellow"]
-
 # Mapping of which layers get which keys from the training dict (Easy for networks with only 1 input layer, but pay
 # attention here if you have multiple different input layers, make sure order matches too. Order Matters
 raw_log_keys_mapped_to_input_layers: dict = {
     "inputLayer": ["red", "green", "blue", "magenta", "yellow"]
 }
 # In this case, there is only 1 input layer called "inputLayer" so that gets all of the keys from the imported logs.
-
-
-# LAYER SIZES
-NUM_INPUT: int = 3
-NUM_HIDDEN: int = 10
-NUM_OUTPUT: int = len(possible_outputs)
 
 
 # Init untrained network
