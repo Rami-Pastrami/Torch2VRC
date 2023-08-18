@@ -5,10 +5,6 @@ from pathlib import Path
 from Torch2VRC import Loading
 from Torch2VRC.Trainers.TrainerClassifier import TrainerClassifier
 
-from Torch2VRC import NetworkTrainer
-from Torch2VRC import CompleteExport
-from Torch2VRC import LayersConnectionsSummary as lac
-
 ASSET_PATH: Path = Path("C:/Users/Rima/Documents/Git Stuff/VRC_NN_RGBTest/Assets/")
 
 
@@ -28,9 +24,18 @@ class RGB_NN(nn.Module):
 # mapped to their type (as they will be in the shader). INPUT LAYER NAMES 'ESPECIALLY' MUST MATCH DICTIONARY KEYS USED
 # IN FORWARD FUNCTION
 layer_definitions: dict = {
-    "inputLayer": "FloatArray1D",
-    "hiddenLayer": "CRT1D",
-    "outputLayer": "CRT1D"
+    "inputLayer":
+        {
+            "type": "FloatArray1D",
+        },
+    "hiddenLayer":
+        {
+            "type": "CRT1D",
+        },
+    "outputLayer":
+        {
+            "type": "CRT1D",
+        }
 }
 
 # Connection names and the activation functions they use (MUST MATCH THOSE IN PYTORCH NETWORK)
