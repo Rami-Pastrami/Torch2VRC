@@ -43,7 +43,7 @@ connection_activations: dict = {
 }
 
 # Connection mappings (define layer(s) in, and layer out) for each Connection
-connectionMappings: dict = {
+connection_mappings: dict = {
     "innerConnections": (["inputLayer"], "hiddenLayer"),
     "outerConnections": (["hiddenLayer"], "outputLayer")
 }
