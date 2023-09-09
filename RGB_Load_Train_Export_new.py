@@ -4,9 +4,10 @@ from pathlib import Path
 
 from Torch2VRC import Loading
 from Torch2VRC.Trainers.TrainerClassifier import TrainerClassifier
+from Torch2VRC.Exporter import Exporter
 
 ASSET_PATH: Path = Path("C:/Users/Rima/Documents/Git Stuff/VRC_NN_RGBTest/Assets/")
-
+NETWORK_NAME: str = "test01"
 
 # Actual Network Model
 class RGB_NN(nn.Module):
@@ -48,7 +49,7 @@ layer_definitions: dict = {
         {
             "type": "CRT1D",
             "is_input": False,
-            "number_neurons_per_dimension": [NUM_OUTPUT]
+            "number_neurons_per_dimension": [NUM_OUTPUT],
         }
 }
 
@@ -63,7 +64,13 @@ connection_activations: dict = {
 
 # Connection mappings (define layer(s) in, and layer out) for each Connection
 connection_mappings: dict = {
-    "innerConnections": (["inputLayer"], "hiddenLayer"),
+    "innerConnections":
+        {
+            "input_layers": ["inputLayer"],
+            "output_layer": "hiddenLayer",
+            "activation": "tanh",
+            "has_bias": True
+        },
     "outerConnections": (["hiddenLayer"], "outputLayer")
 }
 
@@ -92,7 +99,7 @@ trainer.generate_classifier_testing_tensor(possible_outputs)
 trainer.train_network()
 
 ## Get easy to understand data object for use in exportor (friday)
-
+exporter: Exporter = Exporter(RGB_Net, layer_definitions, ASSET_PATH, connection_activations, connection_mappings, NETWORK_NAME)
 
 ## Exporter (Sunday)
 
