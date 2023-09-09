@@ -1,8 +1,11 @@
 import torch as pt
 from pathlib import Path
 from Torch2VRC.Layers.LayerBase import LayerBase
+from Torch2VRC.Activation.ActivationBase import ActivationBase
+from Torch2VRC.Activation.ActivationFactory import create_activation
 from Torch2VRC.Layers.SingleCRT.LayerCRT1D import LayerCRT1D
 from Torch2VRC.Layers.UniformArray.LayerUniformArray1D import LayerUniformArray1D
+from Torch2VRC.Connections.ConnectionLinear import ConnectionLinear
 
 class Exporter:
     '''
@@ -22,6 +25,7 @@ class Exporter:
         self.trained_net = trained_net
         self.network_root = unity_project_asset_path / f"Rami-Pastrami/Torch2VRC/{network_name}/"
         self.layers = self._generate_layers(layer_definitions)
+        self.connections = self._generate_connections(connection_activations, connection_mappings)
 
 
     def export_to_unity(self, network_name: str) -> None:
@@ -32,10 +36,35 @@ class Exporter:
 
 
     def _generate_connections(self, connection_activations: dict, connection_mappings: dict) -> dict:
-        output: dict = {}
-        net_layers: list = list(self.trained_net.children())
 
-        for connection_name in
+        output: dict = {}
+        net_layers: dict = self.trained_net._modules ## extracts the connection data in a cursed manner
+
+        for connection_name in connection_mappings.keys():
+
+            input_layers: list[LayerBase] = []
+            for input_name in connection_mappings[connection_name][0]:
+                input_layers.append(self.layers[input_name])
+            output_layer: LayerBase = self.layers[connection_mappings[connection_name][1]]
+            activation: ActivationBase = create_activation(connection_activations[connection_name])
+            has_bias = True
+            if "has_bias" in connection_mappings[connection_name].keys():
+                has_bias = connection_mappings[connection_name][has_bias]
+            weights: pt.Tensor = net_layers[connection_name].weight
+            bias: pt.Tensor = pt.Tensor()
+            if has_bias:
+                bias = net_layers[connection_name].bias
+
+
+            match(type(net_layers[connection_name])):
+                case pt.nn.modules.linear.Linear:
+                    output[connection_name] = ConnectionLinear(connection_name, input_layers, output_layer, activation,
+                                                               self.network_root, weights, bias, is_using_bias=has_bias)
+                case _:
+                    raise Exception("Unsupported Layer Type!")
+        return output
+
+
 
     def _generate_layers(self, layer_definitions: dict) -> dict:
         output: dict = {}

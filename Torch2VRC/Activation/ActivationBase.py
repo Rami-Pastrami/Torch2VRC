@@ -12,3 +12,5 @@ class ActivationBase:
 
     def activation_function(self, to_activate: pt.Tensor) -> pt.Tensor:
         pass
+
+

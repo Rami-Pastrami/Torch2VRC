@@ -14,7 +14,7 @@ class ConnectionLinear(ConnectionBase):
     bias: pt.Tensor
 
     def __init__(self, connection_name: str, input_layers: list[LayerBase], output_layer: LayerBase,
-                 activation_function: ActivationBase, network_root: Path, weights: pt.Tensor, bias: pt.Tensor = None,
+                 activation_function: ActivationBase, network_root: Path, weights: pt.Tensor, bias: pt.Tensor,
                  is_using_bias: bool = True):
 
         super().__init__(connection_name, input_layers, output_layer, activation_function, network_root)

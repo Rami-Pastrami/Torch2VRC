@@ -19,8 +19,8 @@ class LayerBase:
 
     def __init__(self, layer_name: str, network_root: Path, neuron_count_per_dimension: list[int]):
         self.layer_name = layer_name
-        self.layer_folder = network_root / f"/Layers/{{self.layer_name}}/"
-        self.generate_unity_layer_folder()
+        layer_dir = network_root / "Layers/"
+        self.layer_folder = layer_dir / f"{self.layer_name}/"
         self.neuron_count_per_dimension = neuron_count_per_dimension
 
     def generate_unity_file_resources(self) -> None:
@@ -28,6 +28,7 @@ class LayerBase:
         Generates any required unity resources for the layer (IE, a json to generate a CRT)
         :return: None
         """
+        self.generate_unity_layer_folder()
         pass
 
     def generate_unity_layer_folder(self) -> Path:
