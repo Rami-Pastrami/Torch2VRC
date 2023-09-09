@@ -5,22 +5,29 @@ from Torch2VRC.Layers.SingleCRT.LayerCRT1D import LayerCRT1D
 from Torch2VRC.Layers.UniformArray.LayerUniformArray1D import LayerUniformArray1D
 
 class Exporter:
+    '''
+    Imports trained Torch network, as well as some helper definition variables, and packages them in an easy to
+    reference object. Also allows for exporting this Network as a set of shaders in Unity
+    '''
 
     #trained_net
-    asset_folder: Path
-    network_root_folder: Path
+    network_root: Path
     layers: dict
     connections: dict
 
 
 
-    def __init__(self, trained_net, layer_definitions: dict, connection_activations: dict, connection_mappings: dict,
-                 unity_project_asset_path: Path, network_name: str):
+    def __init__(self, trained_net, layer_definitions: dict, unity_project_asset_path: Path, connection_activations: dict, connection_mappings: dict,
+                 network_name: str):
         self.trained_net = trained_net
-        self.asset_folder = unity_project_asset_path
-        self.network_root_folder = unity_project_asset_path / f"Rami-Pastrami/Torch2VRC/{network_name}/"
+        self.network_root = unity_project_asset_path / f"Rami-Pastrami/Torch2VRC/{network_name}/"
+        self.layers = self._generate_layers(layer_definitions)
+
+
+    def export_to_unity(self, network_name: str) -> None:
         print("Generating Network Folder...")
-        self.network_root_folder.mkdir(exist_ok=True)
+        self.network_root.mkdir(exist_ok=True)
+
 
 
 
@@ -37,6 +44,13 @@ class Exporter:
             layer: LayerBase
             match type:
                 case "FloatArray1D":
-                    layer = LayerUniformArray1D(layer_name, self.network_root_folder)
-
-
+                    num_neurons_per_dimension: list[int] = layer_definitions[layer_name]["number_neurons_per_dimension"]
+                    layer = LayerUniformArray1D(layer_name, self.network_root, num_neurons_per_dimension)
+                case "CRT1D":
+                    num_neurons_per_dimension: list[int] = layer_definitions[layer_name]["number_neurons_per_dimension"]
+                    is_input: bool = layer_definitions[layer_name]["is_input"]
+                    layer = LayerCRT1D(layer_name, self.network_root, num_neurons_per_dimension, is_input)
+                case _:
+                    raise Exception("Unknown Layer Type in input hint!")
+            output[layer_name] = layer
+        return output

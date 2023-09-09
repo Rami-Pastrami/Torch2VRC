@@ -41,11 +41,13 @@ layer_definitions: dict = {
     "hiddenLayer":
         {
             "type": "CRT1D",
+            "is_input": False,
             "number_neurons_per_dimension": [NUM_HIDDEN]
         },
     "outputLayer":
         {
             "type": "CRT1D",
+            "is_input": False,
             "number_neurons_per_dimension": [NUM_OUTPUT]
         }
 }
@@ -89,8 +91,9 @@ trainer.sort_raw_training_data_into_input_tensors(raw_log_keys_mapped_to_input_l
 trainer.generate_classifier_testing_tensor(possible_outputs)
 trainer.train_network()
 
+## Get easy to understand data object for use in exportor (friday)
 
 
-
+## Exporter (Sunday)
 
 print("convenient breakpoint")
