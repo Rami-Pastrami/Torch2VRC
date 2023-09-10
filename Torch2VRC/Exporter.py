@@ -20,12 +20,12 @@ class Exporter:
 
 
 
-    def __init__(self, trained_net, layer_definitions: dict, unity_project_asset_path: Path, connection_activations: dict, connection_mappings: dict,
+    def __init__(self, trained_net, layer_definitions: dict, unity_project_asset_path: Path, connection_details: dict,
                  network_name: str):
         self.trained_net = trained_net
         self.network_root = unity_project_asset_path / f"Rami-Pastrami/Torch2VRC/{network_name}/"
         self.layers = self._generate_layers(layer_definitions)
-        self.connections = self._generate_connections(connection_activations, connection_mappings)
+        self.connections = self._generate_connections(connection_details)
 
 
     def export_to_unity(self, network_name: str) -> None:
@@ -35,26 +35,25 @@ class Exporter:
 
 
 
-    def _generate_connections(self, connection_activations: dict, connection_mappings: dict) -> dict:
+    def _generate_connections(self, connection_details: dict) -> dict:
 
         output: dict = {}
         net_layers: dict = self.trained_net._modules ## extracts the connection data in a cursed manner
 
-        for connection_name in connection_mappings.keys():
-
+        for connection_name in connection_details.keys():
+            connection_data = connection_details[connection_name]
             input_layers: list[LayerBase] = []
-            for input_name in connection_mappings[connection_name][0]:
+            for input_name in connection_data["input_layers"]:
                 input_layers.append(self.layers[input_name])
-            output_layer: LayerBase = self.layers[connection_mappings[connection_name][1]]
-            activation: ActivationBase = create_activation(connection_activations[connection_name])
+            output_layer: LayerBase = self.layers[connection_data["output_layer"]]
+            activation: ActivationBase = create_activation(connection_data["activation"])
             has_bias = True
-            if "has_bias" in connection_mappings[connection_name].keys():
-                has_bias = connection_mappings[connection_name][has_bias]
+            if "has_bias" in connection_data.keys():
+                has_bias = connection_data["has_bias"]
             weights: pt.Tensor = net_layers[connection_name].weight
             bias: pt.Tensor = pt.Tensor()
             if has_bias:
                 bias = net_layers[connection_name].bias
-
 
             match(type(net_layers[connection_name])):
                 case pt.nn.modules.linear.Linear:

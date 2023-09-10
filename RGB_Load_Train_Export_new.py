@@ -53,17 +53,9 @@ layer_definitions: dict = {
         }
 }
 
-# Connection names and the activation functions they use (MUST MATCH THOSE IN PYTORCH NETWORK)
-# This is only being done since when applying activation functions within an existing layer function (IE Linear), you
-# cannot access the activation function type from the pytorch object. While you can technically separate the activation
-# function into a separate layer, doing so within a shader would be greatly inefficient.
-connection_activations: dict = {
-    "innerConnections": "tanh",
-    "outerConnections": "none"
-}
-
-# Connection mappings (define layer(s) in, and layer out) for each Connection
-connection_mappings: dict = {
+# Details for each connection the input layer(s), the output layer, the activation function used, and if there is a
+# bias
+connection_details: dict = {
     "innerConnections":
         {
             "input_layers": ["inputLayer"],
@@ -71,7 +63,13 @@ connection_mappings: dict = {
             "activation": "tanh",
             "has_bias": True
         },
-    "outerConnections": (["hiddenLayer"], "outputLayer")
+    "outerConnections":
+        {
+            "input_layers": ["hiddenLayer"],
+            "output_layer": "outputLayer",
+            "activation": "none",
+            "has_bias": True
+        },
 }
 
 
@@ -98,8 +96,8 @@ trainer.sort_raw_training_data_into_input_tensors(raw_log_keys_mapped_to_input_l
 trainer.generate_classifier_testing_tensor(possible_outputs)
 trainer.train_network()
 
-## Get easy to understand data object for use in exportor (friday)
-exporter: Exporter = Exporter(RGB_Net, layer_definitions, ASSET_PATH, connection_activations, connection_mappings, NETWORK_NAME)
+## Get easy to understand data object for use in exportor
+exporter: Exporter = Exporter(RGB_Net, layer_definitions, ASSET_PATH, connection_details, NETWORK_NAME)
 
 ## Exporter (Sunday)
 
