@@ -31,13 +31,12 @@ class LayerBase:
         self.generate_unity_layer_folder()
         pass
 
-    def generate_unity_layer_folder(self) -> Path:
+    def generate_unity_layer_folder(self) -> None:
         """
         Generates the folder that the layer file info will be stored under
         :return: Path of the folder
         """
         Path.mkdir(self.layer_folder, exist_ok=True)
-        return self.layer_folder
 
     @property
     def total_number_neurons(self):
