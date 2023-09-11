@@ -48,3 +48,4 @@ def generate_material_texture_load(location: Path, weightNormalizer: float, bias
     JSON_location: Path = location / "texture_load_material.json"
     with open(JSON_location, "w") as file:
         json.dump(export_data, file)
+
