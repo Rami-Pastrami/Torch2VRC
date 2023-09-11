@@ -63,8 +63,6 @@ class Exporter:
                     raise Exception("Unsupported Layer Type!")
         return output
 
-
-
     def _generate_layers(self, layer_definitions: dict) -> dict:
         output: dict = {}
         for layer_name in layer_definitions.keys():
@@ -82,3 +80,21 @@ class Exporter:
                     raise Exception("Unknown Layer Type in input hint!")
             output[layer_name] = layer
         return output
+
+    def _write_layers(self) -> None:
+        """
+        Writes JSON files that the Unity Plugin uses to generate CRT files for each layer
+        :return:
+        """
+        for layer in self.layers.values():
+            layer.generate_unity_file_resources()
+
+    def _write_connections(self) -> None:
+        """
+        Writes Connection data (weights and biases) and a JSON that explains all connections
+        :return:
+        """
+        connection_context: dict = {}
+        for connection in self.connections.values():
+            connection_context[connection.connection_name] = connection.generate_unity_file_resources()
+
