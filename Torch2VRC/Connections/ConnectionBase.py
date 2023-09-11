@@ -22,21 +22,24 @@ class ConnectionBase:
         self.ActivationBase = activation_function
         self.connection_folder = network_root / f"/Connections/{{self.connection_name}}/"
 
-    def generate_unity_file_resources(self, network_root: Path) -> None:
+    def generate_unity_file_resources(self) -> dict:
         """
-        Generates any required unity resources for the Connection (IE, a json to generate a CRT)
-        :param network_root: root folder of the network within the Unity project (relative to system, not unity)
+        Generates any required unity resources for the Connection
         :return:
         """
-        pass
+        self.generate_unity_connection_folder()
+        return {}
 
-    def generate_unity_connection_folder(self, network_root: Path) -> Path:
+    def generate_unity_connection_folder(self) -> None:
         """
         Generates the folder that the layer file info will be stored under
         :param network_root: Path of the network root
         :return: Path of the folder
         """
-        connection_folder: Path = network_root / f"/Connections/{{self.connection_name}}/"
-        Path.mkdir(connection_folder, exist_ok=True)
-        return connection_folder
+        Path.mkdir(self.connection_folder, exist_ok=True)
 
+    def _input_layers_as_strings(self) -> list[str]:
+        output: list[str] = []
+        for layer in self.input_layers:
+            output.append(layer.layer_name)
+        return output
