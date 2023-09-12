@@ -100,5 +100,6 @@ trainer.train_network()
 exporter: Exporter = Exporter(RGB_Net, layer_definitions, ASSET_PATH, connection_details, NETWORK_NAME)
 
 ## Exporter (Sunday)
+exporter.export_to_unity()
 
 print("convenient breakpoint")

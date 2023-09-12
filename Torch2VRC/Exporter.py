@@ -28,11 +28,16 @@ class Exporter:
         self.connections = self._generate_connections(connection_details)
 
 
-    def export_to_unity(self, network_name: str) -> None:
+    def export_to_unity(self) -> None:
+        layer_folder: Path = self.network_root / "Layers"
+        layer_folder.mkdir(exist_ok=True)
+        connection_folder: Path = self.network_root / "Connections"
+        connection_folder.mkdir(exist_ok=True)
+
         print("Generating Network Folder...")
         self.network_root.mkdir(exist_ok=True)
-
-
+        self._write_layers()
+        self._write_connections()
 
 
     def _generate_connections(self, connection_details: dict) -> dict:

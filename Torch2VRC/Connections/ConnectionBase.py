@@ -20,7 +20,7 @@ class ConnectionBase:
         self.input_layers = input_layers
         self.output_layer = output_layer
         self.ActivationBase = activation_function
-        self.connection_folder = network_root / f"/Connections/{{self.connection_name}}/"
+        self.connection_folder = network_root / f"Connections/{self.connection_name}/"
 
     def generate_unity_file_resources(self) -> dict:
         """
@@ -36,7 +36,7 @@ class ConnectionBase:
         :param network_root: Path of the network root
         :return: Path of the folder
         """
-        Path.mkdir(self.connection_folder, exist_ok=True)
+        self.connection_folder.mkdir(exist_ok=True)
 
     def _input_layers_as_strings(self) -> list[str]:
         output: list[str] = []

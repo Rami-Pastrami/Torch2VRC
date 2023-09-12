@@ -31,7 +31,7 @@ class ConnectionLinear(ConnectionBase):
         """
         super().generate_unity_file_resources()
         output: dict = {"type": "linear"}
-        weight_normalizer: float = export_np_array_as_png( self.weights.numpy(), self.connection_folder / "WEIGHTS.png")
+        weight_normalizer: float = export_np_array_as_png( self.weights.detach().numpy(), self.connection_folder / "WEIGHTS.png")
         output["weights"] = weight_normalizer
 
         output["sources"] = self._input_layers_as_strings()
@@ -39,7 +39,7 @@ class ConnectionLinear(ConnectionBase):
 
         if not self.is_using_bias:
             return output
-        bias_normalizer = export_np_array_as_png(self.bias.numpy(), self.connection_folder / "BIAS.png")
+        bias_normalizer = export_np_array_as_png(self.bias.detach().numpy(), self.connection_folder / "BIAS.png")
         output["bias"] = bias_normalizer
         return output
         
