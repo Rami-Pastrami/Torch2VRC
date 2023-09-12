@@ -23,7 +23,7 @@ class RGB_NN(nn.Module):
         return self.outerConnections(hiddenLayer)
 
 
-# Init NN Builder mapping definitions
+# Init possible answers from imported log
 possibleOutputs = [["red", "green", "blue", "magenta", "yellow"]]
 
 # LAYER SIZES
@@ -42,6 +42,7 @@ connectionActivations: dict = {
     "innerConnections": "tanh",
     "outerConnections": "none"
 }
+
 
 layerObjects: list = [
     lac.Layer_FloatArray(NUM_INPUT, "inputFromUdon", "_Udon_dataIn"),

@@ -1,5 +1,5 @@
-from Torch2VRC.ImageExport import calculateNormalizer
-from Torch2VRC.ImageExport import ExportNPArrayAsPNG
+from Torch2VRC.ImageExport import calculate_normalizer
+from Torch2VRC.ImageExport import export_np_array_as_png
 import numpy as np
 from pathlib import Path
 import json
@@ -66,8 +66,8 @@ class Connection_Linear():
         self.bias = bias[:, np.newaxis]  # Turn 1D array sideways by making it a 1 wide 2D array
 
         self.activation = activation
-        self.weightNormalizer = calculateNormalizer(self.weight)
-        self.biasNormalizer = calculateNormalizer(self.bias)
+        self.weightNormalizer = calculate_normalizer(self.weight)
+        self.biasNormalizer = calculate_normalizer(self.bias)
 
 
     def ExportConnectionData(self, connectionFolderPath: Path):
@@ -76,8 +76,8 @@ class Connection_Linear():
         :param folderPath: Folder export path ending with /
         :return: dict containing normalizations for weights and bias
         '''
-        ExportNPArrayAsPNG(self.weight, connectionFolderPath / "WEIGHTS.png", self.weightNormalizer)
-        ExportNPArrayAsPNG(self.bias, connectionFolderPath / "BIAS.png", self.biasNormalizer)
+        export_np_array_as_png(self.weight, connectionFolderPath / "WEIGHTS.png", self.weightNormalizer)
+        export_np_array_as_png(self.bias, connectionFolderPath / "BIAS.png", self.biasNormalizer)
 
     def ExportConnectionJSON(self, folderPath: Path):
         '''

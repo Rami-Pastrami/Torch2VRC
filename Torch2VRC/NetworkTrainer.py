@@ -182,7 +182,7 @@ class Torch_VRC_Helper():
             :return:
             '''
             def GetLayerType(specificLayer) -> str:
-                ''' Stupid cursed method for finding the layer connection type '''
+                '''Stupid cursed method for finding the layer connection type'''
                 layerDef: str = str(specificLayer)
                 return layerDef[0: layerDef.find("(")]
 
