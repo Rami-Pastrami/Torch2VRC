@@ -36,17 +36,29 @@ def export_np_array_as_png(inputArray: np.ndarray, filePathName: Path) -> float:
             A = int(math.floor(number * 100000000)) - (1000000 * R) - (10000 * G) - (100 * B)
             return np.array([R, G, B, A]).astype('uint8')
 
-        lenY, lenX = np.shape(layer)
-        output = np.zeros((lenY, lenX, 4)).astype('uint8')
-
-        # Yes I am using for loops. Bite me
-        for y in range(lenY):
+        if layer.ndim == 1:
+            [lenX] = np.shape(layer)
+            output = np.zeros((1, lenX, 4)).astype('uint8')
+            # Yes I am using for loops. Bite me
             for x in range(lenX):
-                num = _num_to_normalized_color(layer[y, x], normalizer)
+                num = _num_to_normalized_color(layer[x], normalizer)
                 for c in range(4):
-                    output[y, x, c] = num[c]
+                    output[0, x, c] = num[c]
+            return output
 
-        return output
+        if layer.ndim == 2:
+            lenY, lenX = np.shape(layer)
+            output = np.zeros((lenY, lenX, 4)).astype('uint8')
+
+            # Yes I am using for loops. Bite me
+            for y in range(lenY):
+                for x in range(lenX):
+                    num = _num_to_normalized_color(layer[y, x], normalizer)
+                    for c in range(4):
+                        output[y, x, c] = num[c]
+            return output
+        # if nothing else
+        return np.ndarray([])
     
     normalizer: float = calculate_normalizer(inputArray)
     RGBAArray: np.ndarray = _numpy_layer_to_rgba_array(inputArray, normalizer)
