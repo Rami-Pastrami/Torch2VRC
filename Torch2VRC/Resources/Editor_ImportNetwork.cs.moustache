@@ -39,7 +39,7 @@ public class MSR_AddButtons : AssetPostprocessor
             ConnectionInfo connectionDetails = ConnectionInfo.CreateFromJSON(json);
             Debug.Log($"Connection Type: {connectionDetails.connectionType}");
 
-            switch(connectionDetails.connectionType)
+            switch (connectionDetails.connectionType)
             {
                 case "linear":
                     ImportLinearLayer(connectionPath, connectionDetails);

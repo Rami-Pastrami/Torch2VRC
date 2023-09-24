@@ -52,7 +52,7 @@ class Exporter:
                 input_layers.append(self.layers[input_name])
             output_layer: LayerBase = self.layers[connection_data["output_layer"]]
             activation: ActivationBase = create_activation(connection_data["activation"])
-            has_bias = True
+            has_bias = True  #TODO
             if "has_bias" in connection_data.keys():
                 has_bias = connection_data["has_bias"]
             weights: pt.Tensor = net_layers[connection_name].weight
