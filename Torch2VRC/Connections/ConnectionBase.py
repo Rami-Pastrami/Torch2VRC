@@ -22,13 +22,13 @@ class ConnectionBase:
         self.ActivationBase = activation_function
         self.connection_folder = network_root / f"Connections/{self.connection_name}/"
 
-    def generate_unity_file_resources(self) -> dict:
+    def generate_unity_file_resources(self) -> None:
         """
-        Generates any required unity resources for the Connection
+        Generates any required unity resources for the Connection and writes it
         :return:
         """
         self.generate_unity_connection_folder()
-        return {}
+        return
 
     def generate_unity_connection_folder(self) -> None:
         """

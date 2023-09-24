@@ -26,7 +26,7 @@ def generate_CRT(location: Path, width: int, height: int, name: str, dimensions:
     with open(JSON_location, "w") as file:
         json.dump(export_data, file)
 
-def generate_material_texture_load(location: Path, weightNormalizer: float, biasNormalizer: float, name: str,
+def generate_material_texture_load(location: Path, name: str, weightNormalizer: float, biasNormalizer: float = 1.0,
                                    using_bias: bool = True) -> None:
     """
     Exports JSON of connection for Unity C# to use to create material for texture (weights and biases) loading
@@ -37,15 +37,25 @@ def generate_material_texture_load(location: Path, weightNormalizer: float, bias
     :param using_bias: if a bias is being used, defaults to True
     :return: None
     """
-    export_data: dict = {
-        "file_type": "mat",
-        "weightNormalizer": weightNormalizer,
-        "biasNormalizer": biasNormalizer,
-        "name": name,
-        "using_bias": using_bias
-    }
+    export_data: dict = {}
+    if using_bias:
+        export_data = {
+            "file_type": "mat",
+            "weightNormalizer": weightNormalizer,
+            "biasNormalizer": biasNormalizer,
+            "name": name,
+            "using_bias": True
+        }
+    else:
+        export_data = {
+            "file_type": "mat",
+            "weightNormalizer": weightNormalizer,
+            "name": name,
+            "using_bias": False
+        }
 
     JSON_location: Path = location / "texture_load_material.json"
     with open(JSON_location, "w") as file:
         json.dump(export_data, file)
+
 
