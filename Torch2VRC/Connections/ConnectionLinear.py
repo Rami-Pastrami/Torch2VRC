@@ -53,11 +53,11 @@ class ConnectionLinear(ConnectionBase):
 
         # Generate CRTs to store weights / biases
         if self.is_using_bias:
-            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().size[0] + 1,
-                                    self.weights.detach().numpy().size[1], "weights")
+            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().shape[0] + 1,
+                                    self.weights.detach().numpy().shape[1], "weights")
         else:
-            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().size[0],
-                                    self.weights.detach().numpy().size[1], "weights")
+            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().shape[0],
+                                    self.weights.detach().numpy().shape[1], "weights")
 
         # Export what layers are the input / output of this connection
         generate_material_connection_layer_definitions(self.connection_folder,
