@@ -3,7 +3,8 @@ from Torch2VRC.Layers.LayerBase import LayerBase
 from Torch2VRC.Activation.ActivationBase import ActivationBase
 from Torch2VRC.Connections.ConnectionBase import ConnectionBase
 from Torch2VRC.ImageExport import export_np_array_as_png
-from Torch2VRC.JSONExport import generate_material_texture_load
+from Torch2VRC.JSONExport import generate_CRT_definition, generate_material_connection_definition_with_bias, \
+    generate_material_connection_definition_without_bias, generate_material_connection_layer_definitions
 import torch as pt
 
 class ConnectionLinear(ConnectionBase):
@@ -30,26 +31,45 @@ class ConnectionLinear(ConnectionBase):
         Generates any required unity resources for the Connection, including writing weights and biases
         :return:
         """
-        # Generate Folder
-        super().generate_unity_file_resources()
 
-        # Generate Material (JSON) TO load in weights and biases, and the CRTs to store the data in
+        def get_layer_names_from_layer_array(layers: list[LayerBase]) -> list[str]:
+            output: list[str] = []
+            for layer in layers:
+                output.append(layer.layer_name)
+            return output
 
-        output: dict = {"type": "linear"}
+        # Generate Folder for this specific connection
+        self.generate_unity_connection_folder()
+
+        # Export weights (and bias if applicable) as images and get normalizers used to generate the material defnitions
+
         weight_normalizer: float = export_np_array_as_png( self.weights.detach().numpy(), self.connection_folder / "WEIGHTS.png")
-        output["weight_normalizer"] = weight_normalizer
 
-        output["sources"] = self._input_layers_as_strings()
-        output["destination"] = self.output_layer.layer_name
-
-
-        if  self.is_using_bias:
+        if self.is_using_bias:
             bias_normalizer = export_np_array_as_png(self.bias.detach().numpy(), self.connection_folder / "BIAS.png")
-            output["bias"] = bias_normalizer
+            generate_material_connection_definition_with_bias(self.connection_folder, weight_normalizer, bias_normalizer)
+        else:
+            generate_material_connection_definition_without_bias(self.connection_folder, weight_normalizer)
 
-        # Generate Shader to connect the layers together
+        # Generate CRTs to store weights / biases
+        if self.is_using_bias:
+            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().size[0] + 1,
+                                    self.weights.detach().numpy().size[1], "weights")
+        else:
+            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().size[0],
+                                    self.weights.detach().numpy().size[1], "weights")
 
-        # Generate Material (JSON)
+        # Export what layers are the input / output of this connection
+        generate_material_connection_layer_definitions(self.connection_folder,
+                                                       get_layer_names_from_layer_array(self.input_layers),
+                                                       self.output_layer.layer_name)
+
+
+
+
+        # Generate Shader TODO
+
+
 
         return
         
