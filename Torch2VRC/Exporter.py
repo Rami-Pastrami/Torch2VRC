@@ -34,8 +34,6 @@ class Exporter:
         connection_folder: Path = self.network_root / "Connections"
         connection_folder.mkdir(exist_ok=True)
 
-        print("Generating Network Folder...")
-        self.network_root.mkdir(exist_ok=True)
         self._write_layers()
         self._write_connections()
 
