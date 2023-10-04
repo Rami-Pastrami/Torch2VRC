@@ -7,6 +7,7 @@ from Torch2VRC.Layers.SingleCRT.LayerCRT1D import LayerCRT1D
 from Torch2VRC.Layers.UniformArray.LayerUniformArray1D import LayerUniformArray1D
 from Torch2VRC.Connections.ConnectionLinear import ConnectionLinear
 from Torch2VRC.ShaderExporter import ShaderExport
+from Torch2VRC.EditorExporter import EditorExport
 
 class Exporter:
     '''
@@ -42,9 +43,11 @@ class Exporter:
         connection_folder.mkdir(exist_ok=True)
         resource_folder: Path = Path.cwd() / "Torch2VRC/Resources"
 
-
-        #TODO export static stuff to a seperate folder
+        # Export Static files (if not already)
         ShaderExport.common_cginc(resource_folder, static_folder)
+        ShaderExport.load_linear_weights(resource_folder, static_folder)
+        ShaderExport.load_linear_weights_and_biases(resource_folder, static_folder)
+        EditorExport.asset_handling(resource_folder, static_folder)
 
         self._write_layers()
         self._write_connections()
