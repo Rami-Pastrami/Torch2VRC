@@ -6,6 +6,7 @@ from Torch2VRC.Activation.ActivationFactory import create_activation
 from Torch2VRC.Layers.SingleCRT.LayerCRT1D import LayerCRT1D
 from Torch2VRC.Layers.UniformArray.LayerUniformArray1D import LayerUniformArray1D
 from Torch2VRC.Connections.ConnectionLinear import ConnectionLinear
+from Torch2VRC.ShaderExporter import ShaderExport
 
 class Exporter:
     '''
@@ -14,14 +15,18 @@ class Exporter:
     '''
 
     #trained_net
+
     network_root: Path
     layers: dict
     connections: dict
 
-
+    STATIC_FOLDER_NAME: str = "Static"
 
     def __init__(self, trained_net, layer_definitions: dict, unity_project_asset_path: Path, connection_details: dict,
                  network_name: str):
+        if network_name.lower() == self.STATIC_FOLDER_NAME.lower():
+            raise Exception("Unable to export a network with the same name as the static folder!")
+
         self.trained_net = trained_net
         self.network_root = unity_project_asset_path / f"Rami-Pastrami/Torch2VRC/{network_name}/"
         self.layers = self._generate_layers(layer_definitions)
@@ -29,10 +34,17 @@ class Exporter:
 
 
     def export_to_unity(self) -> None:
+        static_folder: Path = self.network_root.parent / self.STATIC_FOLDER_NAME
+        static_folder.mkdir(exist_ok=True)
         layer_folder: Path = self.network_root / "Layers"
         layer_folder.mkdir(exist_ok=True)
         connection_folder: Path = self.network_root / "Connections"
         connection_folder.mkdir(exist_ok=True)
+        resource_folder: Path = Path.cwd() / "Torch2VRC/Resources"
+
+
+        #TODO export static stuff to a seperate folder
+        ShaderExport.common_cginc(resource_folder, static_folder)
 
         self._write_layers()
         self._write_connections()
