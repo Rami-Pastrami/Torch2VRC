@@ -41,23 +41,21 @@ class ConnectionLinear(ConnectionBase):
         # Generate Folder for this specific connection
         self.generate_unity_connection_folder()
 
-        # Export weights (and bias if applicable) as images and get normalizers used to generate the material defnitions
-
+        # Export weights (and bias if applicable) as images and get normalizers used to generate the material definitions
         weight_normalizer: float = export_np_array_as_png( self.weights.detach().numpy(), self.connection_folder / "WEIGHTS.png")
-
         if self.is_using_bias:
             bias_normalizer = export_np_array_as_png(self.bias.detach().numpy(), self.connection_folder / "BIAS.png")
             generate_material_connection_definition_with_bias(self.connection_folder, weight_normalizer, bias_normalizer)
         else:
             generate_material_connection_definition_without_bias(self.connection_folder, weight_normalizer)
 
-        # Generate CRTs to store weights / biases
+        # Generate CRTs to store weights / biases. CRTs with biases are 1 wider to hold the bias values
         if self.is_using_bias:
-            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().shape[0] + 1,
-                                    self.weights.detach().numpy().shape[1], "weights")
+            generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().shape[0],
+                                    self.weights.detach().numpy().shape[1] + 1, "weights")
         else:
             generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().shape[0],
-                                    self.weights.detach().numpy().shape[1], "weights")
+                                    self.weights.detach().numpy().shape[1] + 0, "weights")
 
         # Export what layers are the input / output of this connection
         generate_material_connection_layer_definitions(self.connection_folder,
