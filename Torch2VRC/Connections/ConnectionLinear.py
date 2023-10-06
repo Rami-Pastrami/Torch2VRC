@@ -57,10 +57,16 @@ class ConnectionLinear(ConnectionBase):
             generate_CRT_definition(self.connection_folder, self.weights.detach().numpy().shape[0],
                                     self.weights.detach().numpy().shape[1] + 0, "weights")
 
+        
+
         # Export what layers are the input / output of this connection
+        layer_type: str = "linear"
+        if self.is_using_bias:
+            layer_type = "linear_bias"
+
         generate_material_connection_layer_definitions(self.connection_folder,
                                                        get_layer_names_from_layer_array(self.input_layers),
-                                                       self.output_layer.layer_name)
+                                                       self.output_layer.layer_name, layer_type)
 
 
 

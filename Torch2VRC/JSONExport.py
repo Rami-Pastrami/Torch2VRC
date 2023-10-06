@@ -58,15 +58,17 @@ def generate_material_connection_definition_without_bias(connection_folder: Path
 
     _write_JSON("load_connection_values", connection_folder, export_data)
 
-def generate_material_connection_layer_definitions(connection_folder: Path, input_layers: list[str], output_layer: str) -> None:
+def generate_material_connection_layer_definitions(connection_folder: Path, input_layers: list[str], output_layer: str,
+                                                  layer_type: str) -> None:
     """
-
+    :param layer_type:
     :param connection_folder:
     :param input_layers:
     :param output_layer:
     :return:
     """
     export_data: dict = {
+        "type": layer_type,
         "inputs": input_layers,
         "output": output_layer
     }
