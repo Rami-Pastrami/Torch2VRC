@@ -9,6 +9,9 @@ class TrainerClassifier(TrainerBase):
         super().__init__(network, raw_training_data)
 
     def generate_classifier_testing_tensor(self, possible_outputs: list[str]) -> pt.Tensor:
+        #TEMP
+        return pt.Tensor()
+
 
         width: int = len(possible_outputs)
         total_height: int = 0

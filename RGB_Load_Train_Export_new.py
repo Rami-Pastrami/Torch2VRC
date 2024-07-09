@@ -3,8 +3,8 @@ import torch as pt
 from pathlib import Path
 
 from Torch2VRC import Loading
-from Torch2VRC.Trainers.TrainerClassifier import TrainerClassifier
-from Torch2VRC.Exporter import Exporter
+#from Torch2VRC.Trainers.TrainerClassifier import TrainerClassifier
+#from Torch2VRC.Exporter import Exporter
 
 ASSET_PATH: Path = Path("C:/Users/Rima/Documents/Git Stuff/VRC_NN_RGBTest/Assets/")
 NETWORK_NAME: str = "test01"
@@ -91,15 +91,15 @@ RGB_Net = RGB_NN(NUM_INPUT, NUM_HIDDEN, NUM_OUTPUT)
 
 # Train Network
 # using the classifier trainer for some classifier specific functions
-trainer: TrainerClassifier = TrainerClassifier(RGB_Net, imported_log)
-trainer.sort_raw_training_data_into_input_tensors(raw_log_keys_mapped_to_input_layers)
-trainer.generate_classifier_testing_tensor(possible_outputs)
-trainer.train_network()
+#trainer: TrainerClassifier = TrainerClassifier(RGB_Net, imported_log)
+#trainer.sort_raw_training_data_into_input_tensors(raw_log_keys_mapped_to_input_layers)
+#trainer.generate_classifier_testing_tensor(possible_outputs)
+#trainer.train_network()
 
 ## Get easy to understand data object for use in exportor
-exporter: Exporter = Exporter(RGB_Net, layer_definitions, ASSET_PATH, connection_details, NETWORK_NAME)
+#exporter: Exporter = Exporter(RGB_Net, layer_definitions, ASSET_PATH, connection_details, NETWORK_NAME)
 
 ## Exporter (Sunday)
-exporter.export_to_unity()
+#exporter.export_to_unity()
 
 print("convenient breakpoint")
