@@ -1,4 +1,4 @@
-from Types import ActivationFunction, InputType
+from Torch2VRC2.Dependencies.Types import ActivationFunction, InputType
 
 
 class AbstractLayerHelper:
