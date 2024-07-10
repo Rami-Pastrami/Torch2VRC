@@ -1,7 +1,7 @@
 import torch as pt
 from torch import nn
 from enum import Enum
-from LayerHelpers import LayerHelper, InputLayerHelper
+from Helpers import LayerHelper, InputLayerHelper
 
 
 

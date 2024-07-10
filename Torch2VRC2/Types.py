@@ -1,6 +1,7 @@
 from enum import Enum
 
 class ActivationFunction(Enum):
+    none = 0
     tanH = 1
 
 class InputType(Enum):
