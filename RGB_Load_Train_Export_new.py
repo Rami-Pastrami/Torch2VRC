@@ -74,7 +74,7 @@ connection_details: dict = {
 
 
 # Import data from a VRC log file
-imported_log: dict = Loading.LoadLogFileRaw("RGB_Demo_Logs.log")
+imported_log: dict = Loading.LoadLogFileRaw("example_log.log")
 # In this demo, this is a stripped log file, but full logs can be used
 
 # Mapping of which layers get which keys from the training dict (Easy for networks with only 1 input layer, but pay
