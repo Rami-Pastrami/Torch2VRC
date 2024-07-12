@@ -1,13 +1,16 @@
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import torch.cuda
 from  sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from torch import nn
+from torch import optim
 import torch as pt
 
 from VRCDataImporter.LogFileImporters import RawLogLine, read_log_file_without_further_formatting, segregate_by_tag_to_dataframe_arrays
 
 NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER: int = 10
+NUMBER_EPOCHS: int = 1000
 
 # This just gets the example file path
 current_path: Path = Path(__file__)
@@ -43,10 +46,44 @@ class PositionToColorGroupNetwork(nn.Module):
         return self.outer_connections(hidden_layer) # but not here
 
 # XYZ is always 3 inputs, number of hidden neurons can be whatever, number of outputs is the number of possible answers (categories)
-NN_RGB = PositionToColorGroupNetwork(3, NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER, len(color_answer_lookups))
+NN_RGB: nn.Module = PositionToColorGroupNetwork(3, NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER, len(color_answer_lookups))
 print(f"Neural Network has been Defined")
 
 ## Train the network
+
+loss_function: nn.Module = nn.MSELoss()
+optimizer = optim.Adam(NN_RGB.parameters(), lr = 0.001)
+
+data_tensor: pt.Tensor
+response_tensor: pt.Tensor
+
+
+training_device: str
+if torch.cuda.is_available():
+    training_device = "cuda"
+elif torch.backends.mps.is_available():
+    training_device = "mps"
+else:
+    training_device = "cpu"
+
+print(f"Start training Neural network on device: {training_device}")
+NN_RGB.to(training_device) # move model to best training device available
+data_tensor = pt.from_numpy(XYZ_training_data).float().to(training_device)
+response_tensor = pt.from_numpy(color_answer_classifier_responses).float().to(training_device)
+
+def train_network(network_to_train: nn.Module, training_input: pt.Tensor, expected_output: pt.Tensor,
+                  number_epochs: int, loss_object: nn.Module,
+                  network_optimizer) -> nn.Module:
+
+    for epoch in range(number_epochs):
+        loss = loss_object(network_to_train(training_input), expected_output)
+        network_optimizer.zero_grad()
+        loss.backward()
+        network_optimizer.step()
+        print(loss.item())
+    return network_to_train
+
+NN_RGB = train_network(NN_RGB, data_tensor, response_tensor, NUMBER_EPOCHS, loss_function, optimizer)
 
 print(f"Neural Network has been trained")
 
