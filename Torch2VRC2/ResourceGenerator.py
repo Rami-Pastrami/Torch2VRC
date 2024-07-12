@@ -1,7 +1,8 @@
 import torch as pt
 from pathlib import Path
-from ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
-from LayerHelpers import AbstractLayerHelper, InputLayerHelper, OutputLayerHelper
+from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
+from Torch2VRC2.LayerHelpers import AbstractLayerHelper, InputLayerHelper, OutputLayerHelper
+from Torch2VRC2.Dependencies.ConnectionDefinitions import AbstractConnectionDefinition, LinearConnectionDefinition
 
 VERSION: int = 1
 '''Used to denote what version we should the denote the export as'''
@@ -26,9 +27,7 @@ class Torch2VRCWriter():
         for connection_helper in connection_helpers:
             # Where be my match / switch case?
             if isinstance(connection_helper, LinearConnectionHelper):
-                self.connection_definitions[connection_helper.connection_name_from_torch] = (
-                    LinearConnectionHelper(connection_helper.connection_name_from_torch,
-                                           connection_helper.target_layer_name))
+                self.connection_definitions[connection_helper.connection_name_from_torch] = LinearConnectionDefinition(self.network, connection_helper)
             else:
                 raise Exception("Connection Type not Implemented!")
 

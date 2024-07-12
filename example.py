@@ -3,11 +3,16 @@ import pandas as pd
 import numpy as np
 import torch.cuda
 from  sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from torch import nn
-from torch import optim
+from torch import nn, optim
 import torch as pt
 
 from VRCDataImporter.LogFileImporters import RawLogLine, read_log_file_without_further_formatting, segregate_by_tag_to_dataframe_arrays
+from Torch2VRC2.LayerHelpers import AbstractLayerHelper, InputLayerHelper, HiddenLayerHelper, OutputLayerHelper
+from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
+from Torch2VRC2.ResourceGenerator import Torch2VRCWriter
+from Torch2VRC2.Dependencies.Types import ActivationFunction, InputType
+
+
 
 NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER: int = 10
 NUMBER_EPOCHS: int = 1000
@@ -24,7 +29,7 @@ log_line_objects: list[RawLogLine] = read_log_file_without_further_formatting(ex
 data_frame: pd.DataFrame = segregate_by_tag_to_dataframe_arrays(log_line_objects, "color", ["X", "Y", "Z"] )
 print(f"Completed loading log file into initial DataFrame")
 
-# Get training / answer sets from the DataFrame
+# Extract training / answer sets from the DataFrame
 label_encoder: LabelEncoder = LabelEncoder()
 one_hot_encoder: OneHotEncoder = OneHotEncoder(sparse_output=False)
 data_frame["color_category"] = label_encoder.fit_transform(data_frame["color"])
@@ -87,7 +92,27 @@ NN_RGB = train_network(NN_RGB, data_tensor, response_tensor, NUMBER_EPOCHS, loss
 
 print(f"Neural Network has been trained")
 
+## Define helper definitions to aid in model export
+
+connection_helpers: list[AbstractConnectionHelper] = [ # These have to match the names of the connections from the torch model
+    LinearConnectionHelper("inner_connections", "hidden1"),
+    LinearConnectionHelper("outer_connections", "output")
+]
+
+input_layer_helper: InputLayerHelper = InputLayerHelper("input", "inner_connections", InputType.float_array)
+output_layer_helper: OutputLayerHelper = OutputLayerHelper("output")
+
+layer_helpers: list[AbstractLayerHelper] = [
+    HiddenLayerHelper("hidden1", "outer_connections", ActivationFunction.tanH),
+]
+
+model_exporter: Torch2VRCWriter = Torch2VRCWriter(NN_RGB, input_layer_helper, output_layer_helper, layer_helpers, connection_helpers)
+
+
 ## Output the network for use in Unity / VRC
+
+
+
 
 print(f"Neural Network has been output for use in Unity")
 

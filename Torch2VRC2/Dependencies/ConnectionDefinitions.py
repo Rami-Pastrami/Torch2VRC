@@ -1,8 +1,8 @@
 from collections import OrderedDict
 from torch import nn
 from pathlib import Path
-from LayerHelpers import AbstractLayerHelper
-from ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
+from Torch2VRC2.LayerHelpers import AbstractLayerHelper
+from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
 from Torch2VRC2.Dependencies.ArrayAsPNG import export_np_array_as_png, calculate_normalizer
 import torch as pt
 import numpy as np
@@ -11,12 +11,12 @@ import numpy as np
 
 
 class AbstractConnectionDefinition:
-    def __init__(self, connection_helper: AbstractConnectionHelper, network: nn):
+    def __init__(self, network: nn, connection_name: str, target_layer_name: str):
         connections_raw: OrderedDict = network._modules # Cursed, but works
-        if connection_helper.connection_name_from_torch not in connections_raw.keys():
+        if connection_name not in connections_raw.keys():
             raise Exception("Given connection name does not exist in neural network!")
-        self.name: str = connection_helper.connection_name_from_torch
-        self.connects_to_layer_of_name: str = connection_helper.target_layer_name
+        self.name: str = connection_name
+        self.connects_to_layer_of_name: str = target_layer_name
 
     def get_destination_layer(self, generated_layers: dict) -> AbstractLayerHelper:
         if self.connects_to_layer_of_name not in generated_layers:
@@ -41,14 +41,14 @@ class AbstractConnectionDefinition:
 
 
 class LinearConnectionDefinition(AbstractConnectionDefinition):
-    def __init__(self, connection_helper: LinearConnectionHelper, network: pt.nn):
-        super(connection_helper, network)
+    def __init__(self, network: pt.nn, connection_helper: LinearConnectionHelper):
+        super().__init__(network, connection_helper.connection_name_from_torch, connection_helper.target_layer_name)
 
         linear_connection: nn.Linear = network._modules[connection_helper.connection_name_from_torch]
         self.number_input_neurons: int = linear_connection.in_features
         self.number_output_neurons: int = linear_connection.out_features
-        self.weights: np.ndarray = linear_connection.weight.numpy()
-        self.biases: np.ndarray = linear_connection.bias.numpy()
+        self.weights: np.ndarray = linear_connection.weight.cpu().detach().numpy()
+        self.biases: np.ndarray = linear_connection.bias.cpu().detach().numpy()
 
     def calculate_weights_png_normalizer(self) -> float:
         return calculate_normalizer(self.weights)
