@@ -67,6 +67,8 @@ class Torch2VRCWriter():
             output[connection_name] = {}
             output[connection_name]["normalizers"] = {}
             output[connection_name]["CRT"] = {}
+            output[connection_name]["inputs"] = {}
+            output[connection_name]["output"] = ""
 
             # generate normalizers and write the connections as PNG files
             output[connection_name]["normalizers"]["weights"] = self.connection_definitions[connection_name].calculate_weights_png_normalizer()
@@ -76,6 +78,12 @@ class Torch2VRCWriter():
 
             # generate CRT details
             output[connection_name]["CRT"] = self.connection_definitions[connection_name].export_CRT_dict_to_hold_connection()
+
+            # Define the input layer(s)
+            output[connection_name]["inputs"] = self.connection_definitions[connection_name].export_input_mappings()
+
+            # Define the output layer
+            output[connection_name]["output"] = self.connection_definitions[connection_name].connects_to_layer_of_name
 
 
         return output
