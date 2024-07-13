@@ -16,6 +16,7 @@ from Torch2VRC2.Dependencies.Types import ActivationFunction, InputType
 
 NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER: int = 10
 NUMBER_EPOCHS: int = 1000
+PATH_EXPORT_NETWORK: Path = Path("C:/VRCExport/")
 
 # This just gets the example file path
 current_path: Path = Path(__file__)
@@ -111,6 +112,8 @@ model_exporter: Torch2VRCWriter = Torch2VRCWriter(NN_RGB, input_layer_helper, ou
 
 ## Output the network for use in Unity / VRC
 
+
+model_exporter.write_to_unity_directory(PATH_EXPORT_NETWORK, "RGB_Test")
 
 
 
