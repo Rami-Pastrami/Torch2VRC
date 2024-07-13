@@ -4,6 +4,7 @@ from pathlib import Path
 from Torch2VRC2.LayerHelpers import AbstractLayerHelper
 from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
 from Torch2VRC2.Dependencies.ArrayAsPNG import export_np_array_as_png, calculate_normalizer
+from Torch2VRC2.Dependencies.UnityExport import CRTDefinition
 import torch as pt
 import numpy as np
 
@@ -28,7 +29,7 @@ class AbstractConnectionDefinition:
         raise NotImplementedError("Implement This!")
 
 
-    def export_weights_as_png_texture(self, normalizer: float, full_file_path: Path):
+    def export_weights_as_png_texture(self, normalizer: float, containing_folder_path: Path):
         raise NotImplementedError("Implement This!")
 
 
@@ -36,9 +37,14 @@ class AbstractConnectionDefinition:
         raise NotImplementedError("Implement This!")
 
 
-    def export_biases_as_png_texture(self, normalizer: float, full_file_path: Path):
+    def export_biases_as_png_texture(self, normalizer: float, containing_folder_path: Path):
         raise NotImplementedError("Implement This!")
 
+    def export_CRT_dict_to_hold_connection(self) -> dict:
+        raise NotImplementedError("Implement This!")
+
+    def export_input_mappings(self) -> dict:
+        raise NotImplementedError("Implement This!")
 
 class LinearConnectionDefinition(AbstractConnectionDefinition):
     def __init__(self, network: pt.nn, connection_helper: LinearConnectionHelper):
@@ -48,19 +54,25 @@ class LinearConnectionDefinition(AbstractConnectionDefinition):
         self.number_input_neurons: int = linear_connection.in_features
         self.number_output_neurons: int = linear_connection.out_features
         self.weights: np.ndarray = linear_connection.weight.cpu().detach().numpy()
-        self.biases: np.ndarray = linear_connection.bias.cpu().detach().numpy()
+        self.biases: np.ndarray = linear_connection.bias.cpu().detach().numpy().reshape(-1, 1)
 
     def calculate_weights_png_normalizer(self) -> float:
         return calculate_normalizer(self.weights)
 
 
-    def export_weights_as_png_texture(self, normalizer: float, full_file_path: Path):
-        export_np_array_as_png(self.weights, normalizer, full_file_path)
+    def export_weights_as_png_texture(self, normalizer: float, containing_folder_path: Path):
+        export_np_array_as_png(self.weights, normalizer, containing_folder_path.joinpath(Path(self.name + "_Linear_Weights.png")))
 
 
     def calculate_biases_png_normalizer(self) -> float:
         return calculate_normalizer(self.biases)
 
 
-    def export_biases_as_png_texture(self, normalizer: float, full_file_path: Path):
-        export_np_array_as_png(self.biases, normalizer, full_file_path)
+    def export_biases_as_png_texture(self, normalizer: float, containing_folder_path: Path):
+        export_np_array_as_png(self.biases, normalizer, containing_folder_path.joinpath(Path(self.name + "_Linear_Bias.png")))
+
+    def export_CRT_dict_to_hold_connection(self) -> dict:
+        return CRTDefinition(self.number_input_neurons + 1, self.number_output_neurons, "Linear_" + self.name )
+
+    def export_input_mappings(self, input_layer_name: str) -> dict:
+        return {"input": input_layer_name}
