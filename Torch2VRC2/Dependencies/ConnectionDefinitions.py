@@ -50,6 +50,7 @@ class LinearConnectionDefinition(AbstractConnectionDefinition):
     def __init__(self, network: pt.nn, connection_helper: LinearConnectionHelper):
         super().__init__(network, connection_helper.connection_name_from_torch, connection_helper.target_layer_name)
 
+        self.source_layer_name: str = connection_helper.source_layer_name
         linear_connection: nn.Linear = network._modules[connection_helper.connection_name_from_torch]
         self.number_input_neurons: int = linear_connection.in_features
         self.number_output_neurons: int = linear_connection.out_features
@@ -72,7 +73,7 @@ class LinearConnectionDefinition(AbstractConnectionDefinition):
         export_np_array_as_png(self.biases, normalizer, containing_folder_path.joinpath(Path(self.name + "_Linear_Bias.png")))
 
     def export_CRT_dict_to_hold_connection(self) -> dict:
-        return CRTDefinition(self.number_input_neurons + 1, self.number_output_neurons, "Linear_" + self.name )
+        return CRTDefinition(self.number_input_neurons + 1, self.number_output_neurons, "Linear_" + self.name, False).export_as_JSON_dict()
 
-    def export_input_mappings(self, input_layer_name: str) -> dict:
-        return {"input": input_layer_name}
+    def export_input_mappings(self) -> dict:
+        return {"input": self.source_layer_name}

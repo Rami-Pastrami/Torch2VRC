@@ -3,6 +3,7 @@ from pathlib import Path
 from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
 from Torch2VRC2.LayerHelpers import AbstractLayerHelper, InputLayerHelper, OutputLayerHelper
 from Torch2VRC2.Dependencies.ConnectionDefinitions import AbstractConnectionDefinition, LinearConnectionDefinition
+from Torch2VRC2.Dependencies.UnityExport import write_network_JSON
 
 VERSION: int = 1
 '''Used to denote what version we should the denote the export as'''
@@ -10,21 +11,16 @@ VERSION: int = 1
 
 
 class Torch2VRCWriter():
-    def __init__(self, network: pt.nn, input_layer_helper: InputLayerHelper,
-                 output_layer_helper: OutputLayerHelper, hidden_layer_helpers: list[AbstractLayerHelper],
+    def __init__(self, network: pt.nn, network_name: str, layer_helpers: list[AbstractLayerHelper],
                  connection_helpers: list[AbstractConnectionHelper]):
 
         self.version: int = VERSION
-
+        self.network_name = network_name
         self.network: pt.nn = network
 
-        self.first_layer_name: str = input_layer_helper.layer_name
         self.layer_definitions: dict = {}
-        self.layer_definitions[input_layer_helper.layer_name] = input_layer_helper
-        self.layer_definitions[output_layer_helper.layer_name] = OutputLayerHelper
-        for hidden_layer_helper in hidden_layer_helpers:
-            self.layer_definitions[hidden_layer_helper.layer_name] = hidden_layer_helper
-
+        for layer_helper in layer_helpers:
+            self.layer_definitions[layer_helper.layer_name] = layer_helper
         self.connection_definitions: dict = {}
         for connection_helper in connection_helpers:
             # Where be my match / switch case?
@@ -49,11 +45,17 @@ class Torch2VRCWriter():
         # export connection weights and biases as textures, get normalizer and CRT information
         connection_data = self._export_connections_and_generate_detail_dict(connections_dir)
 
-        # get CRT
+        # export layer details
+        layer_data = self._export_layer_details()
 
         # write network_definition.json
+        network_dict = {
+            "network_name": self.network_name,
+            "layers": layer_data,
+            "connections": connection_data
+        }
 
-        pass
+        write_network_JSON(network_dict, neural_network_folder.joinpath("network.json"))
 
     def _make_subfolder_if_not_exist(self, parent_directory: Path, subfolder_name: str) -> Path:
         subfolder: Path = parent_directory.joinpath(subfolder_name + "/")
@@ -88,7 +90,11 @@ class Torch2VRCWriter():
 
         return output
 
-
+    def _export_layer_details(self) -> dict:
+        output: dict = {}
+        for layer_name in self.layer_definitions:
+            output[layer_name] = self.layer_definitions[layer_name].export_as_JSON_dict()
+        return output
 
 
 

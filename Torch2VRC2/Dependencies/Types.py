@@ -1,12 +1,12 @@
 from enum import Enum
 
 class ActivationFunction(Enum):
-    none = 0
-    tanH = 1
+    none = "none"
+    tanH = "tanH"
 
 class InputType(Enum):
-    float_array = 1
-    CRT = 2
+    float_array = "float"
+    CRT = "CRT"
 
 class CRTDataType(Enum):
     RHALF = "RHalf"

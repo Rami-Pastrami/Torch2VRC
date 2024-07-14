@@ -1,5 +1,11 @@
 from Torch2VRC2.Dependencies.Types import CRTDataType, WrapMode
+from pathlib import Path
+import json
 
+
+def write_network_JSON(network_details: dict, full_JSON_file__path: Path) -> None:
+    with open(full_JSON_file__path, "w") as outfile:
+        json.dump(network_details, outfile)
 
 class CRTDefinition:
     def __init__(self, X_size: int, Y_size: int, name: str, is_double_buffered: bool, format: CRTDataType = CRTDataType.RHALF, wrapping: WrapMode = WrapMode.CLAMP):
@@ -17,4 +23,5 @@ class CRTDefinition:
         output[self.name]["double_buffered"] = self.is_double_buffered
         output[self.name]["color_format"] = self.format_str
         output[self.name]["wrapping"] = self.wrapping_str
+        return output
 

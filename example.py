@@ -13,8 +13,11 @@ from Torch2VRC2.ResourceGenerator import Torch2VRCWriter
 from Torch2VRC2.Dependencies.Types import ActivationFunction, InputType
 
 
+NUMBER_NEURONS_INPUT: int = 3
+NUMBER_NEURONS_HIDDEN: int = 10
+NUMBER_NEURONS_OUTPUT: int = 5  # 5 possible answers
 
-NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER: int = 10
+
 NUMBER_EPOCHS: int = 1000
 PATH_EXPORT_NETWORK: Path = Path("C:/VRCExport/")
 
@@ -52,7 +55,7 @@ class PositionToColorGroupNetwork(nn.Module):
         return self.outer_connections(hidden_layer) # but not here
 
 # XYZ is always 3 inputs, number of hidden neurons can be whatever, number of outputs is the number of possible answers (categories)
-NN_RGB: nn.Module = PositionToColorGroupNetwork(3, NUMBER_HIDDEN_NEURONS_IN_HIDDEN_LAYER, len(color_answer_lookups))
+NN_RGB: nn.Module = PositionToColorGroupNetwork(NUMBER_NEURONS_INPUT, NUMBER_NEURONS_HIDDEN, NUMBER_NEURONS_OUTPUT)
 print(f"Neural Network has been Defined")
 
 ## Train the network
@@ -100,14 +103,13 @@ connection_helpers: list[AbstractConnectionHelper] = [ # These have to match the
     LinearConnectionHelper("outer_connections", "output", "hidden1")
 ]
 
-input_layer_helper: InputLayerHelper = InputLayerHelper("input", "inner_connections", InputType.float_array)
-output_layer_helper: OutputLayerHelper = OutputLayerHelper("output")
-
 layer_helpers: list[AbstractLayerHelper] = [
-    HiddenLayerHelper("hidden1", "outer_connections", ActivationFunction.tanH),
+    InputLayerHelper("input", NUMBER_NEURONS_INPUT, 1, "inner_connections", InputType.float_array),
+    HiddenLayerHelper("hidden1", NUMBER_NEURONS_HIDDEN, 1,"outer_connections", ActivationFunction.tanH),
+    OutputLayerHelper("output", NUMBER_NEURONS_OUTPUT, 1)
 ]
 
-model_exporter: Torch2VRCWriter = Torch2VRCWriter(NN_RGB, input_layer_helper, output_layer_helper, layer_helpers, connection_helpers)
+model_exporter: Torch2VRCWriter = Torch2VRCWriter(NN_RGB, "Network_Color_Group_Guesser", layer_helpers, connection_helpers)
 
 
 ## Output the network for use in Unity / VRC
