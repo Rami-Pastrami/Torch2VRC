@@ -1,12 +1,12 @@
 import chevron as ch
 from pathlib import Path
-from Torch2VRC.common import Activation, ConnectionTypes, LayerTypes
-from Torch2VRC.NetworkTrainer import Torch_VRC_Helper
-import Torch2VRC.LayersConnectionsSummary as LCS
+from Old.common import Activation, ConnectionTypes, LayerTypes
+from Old.NetworkTrainer import Torch_VRC_Helper
+import Old.LayersConnectionsSummary as LCS
 
 def GenerateEditorNetworkImporter(unityNetworkFolderPath: Path, networkName: str):
 
-    mustachePath: Path = Path.cwd() / "Torch2VRC/Resources/Editor_ImportNetwork.cs.moustache"
+    mustachePath: Path = Path.cwd() / "Old/Resources/Editor_ImportNetwork.cs.moustache"
     filePath: Path = unityNetworkFolderPath / "Editor_ImportNetwork.cs"
     if filePath.exists(): return  # this file is not dynamic, do don't override if already exists
     with open(mustachePath, 'r') as template:
@@ -148,7 +148,7 @@ def GenerateNetworkShaders(unityNetworkFolderPath: Path, networkName: str, helpe
             "ACTIVATION": _ACTIVATION
         }
 
-        moustachePath: Path = Path.cwd() / "Torch2VRC/Resources/LinearLayer.moustache"
+        moustachePath: Path = Path.cwd() / "Old/Resources/LinearLayer.moustache"
 
         GenerateLayerFromMoustache(moustachePath, networkUnityFolder, layerName, substitutions)
 

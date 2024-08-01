@@ -1,5 +1,5 @@
-from Torch2VRC.Layers.UniformArray.LayerUniformArrayBase import LayerUniformArrayBase
-from Torch2VRC.Layers.LayerBase import LayerBase
+from Old.Layers.UniformArray.LayerUniformArrayBase import LayerUniformArrayBase
+from Old.Layers.LayerBase import LayerBase
 from pathlib import Path
 
 class LayerUniformArray1D(LayerUniformArrayBase):

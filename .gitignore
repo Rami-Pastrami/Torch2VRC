@@ -1,5 +1,5 @@
 .idea
 venv
-Torch2VRC/__pycache__
+Old/__pycache__
 *.png
 *.pyc
