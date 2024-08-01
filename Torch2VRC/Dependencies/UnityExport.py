@@ -1,4 +1,4 @@
-from Torch2VRC2.Dependencies.Types import CRTDataType, WrapMode
+from Torch2VRC.Dependencies.Types import CRTDataType, WrapMode
 from pathlib import Path
 import json
 

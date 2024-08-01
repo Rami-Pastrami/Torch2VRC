@@ -1,5 +1,5 @@
-from Torch2VRC2.Dependencies.Types import ActivationFunction, InputType
-from Torch2VRC2.Dependencies.UnityExport import CRTDefinition
+from Torch2VRC.Dependencies.Types import ActivationFunction, InputType
+from Torch2VRC.Dependencies.UnityExport import CRTDefinition
 
 class AbstractLayerHelper:
     def __init__(self, name: str, x_size: int, y_size: int):

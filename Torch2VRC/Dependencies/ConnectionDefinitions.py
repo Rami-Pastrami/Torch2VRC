@@ -1,10 +1,10 @@
 from collections import OrderedDict
 from torch import nn
 from pathlib import Path
-from Torch2VRC2.LayerHelpers import AbstractLayerHelper
-from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
-from Torch2VRC2.Dependencies.ArrayAsPNG import export_np_array_as_png, calculate_normalizer
-from Torch2VRC2.Dependencies.UnityExport import CRTDefinition
+from Torch2VRC.LayerHelpers import AbstractLayerHelper
+from Torch2VRC.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
+from Torch2VRC.Dependencies.ArrayAsPNG import export_np_array_as_png, calculate_normalizer
+from Torch2VRC.Dependencies.UnityExport import CRTDefinition
 import torch as pt
 import numpy as np
 

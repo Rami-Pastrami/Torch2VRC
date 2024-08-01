@@ -1,9 +1,9 @@
 import torch as pt
 from pathlib import Path
-from Torch2VRC2.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
-from Torch2VRC2.LayerHelpers import AbstractLayerHelper, InputLayerHelper, OutputLayerHelper
-from Torch2VRC2.Dependencies.ConnectionDefinitions import AbstractConnectionDefinition, LinearConnectionDefinition
-from Torch2VRC2.Dependencies.UnityExport import write_network_JSON
+from Torch2VRC.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
+from Torch2VRC.LayerHelpers import AbstractLayerHelper, InputLayerHelper, OutputLayerHelper
+from Torch2VRC.Dependencies.ConnectionDefinitions import AbstractConnectionDefinition, LinearConnectionDefinition
+from Torch2VRC.Dependencies.UnityExport import write_network_JSON
 
 VERSION: int = 1
 '''Used to denote what version we should the denote the export as'''
