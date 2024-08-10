@@ -6,7 +6,7 @@ from  sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from torch import nn, optim
 import torch as pt
 
-from VRCDataImporter.LogFileImporters import RawLogLine, read_log_file_without_further_formatting, segregate_by_tag_to_dataframe_arrays
+from VRCDataImporter import RawLogLine, read_log_file_without_further_formatting, segregate_by_tag_to_dataframe_arrays
 from Torch2VRC.LayerHelpers import AbstractLayerHelper, InputLayerHelper, HiddenLayerHelper, OutputLayerHelper
 from Torch2VRC.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
 from Torch2VRC.ResourceGenerator import Torch2VRCWriter
