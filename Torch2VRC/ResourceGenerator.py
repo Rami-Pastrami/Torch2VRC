@@ -1,11 +1,13 @@
 import torch as pt
 from pathlib import Path
+import json
+import time
 from Torch2VRC.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
-from Torch2VRC.LayerHelpers import AbstractLayerHelper, InputLayerHelper, OutputLayerHelper
-from Torch2VRC.Dependencies.ConnectionDefinitions import AbstractConnectionDefinition, LinearConnectionDefinition
+from Torch2VRC.LayerHelpers import AbstractLayerHelper
+from Torch2VRC.Dependencies.ConnectionDefinitions import LinearConnectionDefinition
 from Torch2VRC.Dependencies.UnityExport import write_network_JSON
 
-VERSION: int = 1
+VERSION: int = 2
 '''Used to denote what version we should the denote the export as'''
 
 
@@ -29,11 +31,28 @@ class Torch2VRCWriter():
             else:
                 raise Exception("Connection Type not Implemented!")
 
-    def write_to_unity_directory(self, neural_network_folder: Path, name_of_network: str):
-        # Establish directories if not already
-        if not neural_network_folder.exists():
-            neural_network_folder.mkdir()
-        connections_dir: Path = self._make_subfolder_if_not_exist(neural_network_folder, "connections")
+
+    def write_to_unity_directory(self, root_neural_networks_folder: Path, name_of_network: str):
+        """
+        Creates the needed folders, and exports the properties as JSONs and data as Images
+        """
+
+        # Establish directories if not already existing
+        if not root_neural_networks_folder.exists():
+            root_neural_networks_folder.mkdir()
+        network_folder: Path = self._make_subfolder_if_not_exist(root_neural_networks_folder, name_of_network)
+        layers_folder: Path = self._make_subfolder_if_not_exist(network_folder, "Layers")
+        connections_folder: Path = self._make_subfolder_if_not_exist(network_folder, "Connections")
+        linear_connections_folder: Path = self._make_subfolder_if_not_exist(connections_folder, "Linear")
+        #TODO Other types of connection folders as they get added
+
+        self._write_network_json(Path.joinpath(network_folder, "network.json"))
+
+
+
+        return
+        #TODO remove old
+        connections_dir: Path = self._make_subfolder_if_not_exist(root_neural_networks_folder, "connections")
 
         # init vars that will be used to build the network.json
         connection_data: dict = {} # store generated normalizers and CRT info during texture import to be saved in the network json
@@ -55,7 +74,22 @@ class Torch2VRCWriter():
             "connections": connection_data
         }
 
-        write_network_JSON(network_dict, neural_network_folder.joinpath("network.json"))
+
+
+
+
+
+
+    def _write_network_json(self, network_path: Path) -> None:
+        network: dict = {
+            "name": self.network_name,
+            "exporter_version": VERSION,
+            "export_timestamp": int(time.time()),
+            "layer_names": [layer_name for layer_name in self.layer_definitions.keys()],
+            "connection_linear_names": [connection.name for connection in self.connection_definitions.values() if isinstance(connection, LinearConnectionDefinition)]
+            #TODO Add more connection layer types here
+        }
+        write_JSON(network, network_path)
 
     def _make_subfolder_if_not_exist(self, parent_directory: Path, subfolder_name: str) -> Path:
         subfolder: Path = parent_directory.joinpath(subfolder_name + "/")
@@ -97,9 +131,6 @@ class Torch2VRCWriter():
         return output
 
 
-
-
-
-
-
-
+def write_JSON(dictionary: dict, full_JSON_file_path: Path) -> None:
+    with open(full_JSON_file_path, "w") as outfile:
+        json.dump(dictionary, outfile)
