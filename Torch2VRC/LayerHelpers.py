@@ -9,7 +9,6 @@ class AbstractLayerHelper:
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = {}
-        output["name"] = self.layer_name
         output["X"] = self.x_size
         output["Y"] = self.y_size
         return output
@@ -24,7 +23,6 @@ class InputLayerHelper(AbstractLayerHelper):
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = super().export_as_JSON_dict()
-        output["layer_location"] = "input"
         output["connects_to_connection"] = self.connects_outward_via_connection_of_name
         output["layer_data_type"] = {}
         if self.input_type == InputType.float_array:
@@ -49,11 +47,10 @@ class HiddenLayerHelper(AbstractLayerHelper):
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = super().export_as_JSON_dict()
-        output["layer_location"] = "hidden"
         output["connects_to_connection"] = self.connects_outward_via_connection_of_name
         output["incoming_activation_function"] = self.incoming_activation_function.value
         output["method"] = {
-            "CRT_details" : CRTDefinition(self.x_size, self.y_size, "Layer_" + self.layer_name, False).export_as_JSON_dict()
+            "CRT_details": CRTDefinition(self.x_size, self.y_size, "Layer_" + self.layer_name, False).export_as_JSON_dict()
         }
         return output
 
@@ -67,7 +64,6 @@ class OutputLayerHelper(AbstractLayerHelper):
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = super().export_as_JSON_dict()
-        output["layer_location"] = "hidden"
         output["incoming_activation_function"] = self.incoming_activation_function.value
         output["method"] = {
             "CRT_details" : CRTDefinition(self.x_size, self.y_size, "Layer_" + self.layer_name, False).export_as_JSON_dict()
