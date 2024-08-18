@@ -44,9 +44,10 @@ class Torch2VRCWriter():
         layers_folder: Path = self._make_subfolder_if_not_exist(network_folder, "Layers")
         connections_folder: Path = self._make_subfolder_if_not_exist(network_folder, "Connections")
         linear_connections_folder: Path = self._make_subfolder_if_not_exist(connections_folder, "Linear")
-        #TODO Other types of connection folders as they get added
+        #NOTE Add other types of connection folders as they get added
 
-        self._write_network_json(Path.joinpath(network_folder, "network.json"))
+        self._write_network_json(network_folder)
+        self._write_layers(layers_folder)
 
 
 
@@ -87,9 +88,19 @@ class Torch2VRCWriter():
             "export_timestamp": int(time.time()),
             "layer_names": [layer_name for layer_name in self.layer_definitions.keys()],
             "connection_linear_names": [connection.name for connection in self.connection_definitions.values() if isinstance(connection, LinearConnectionDefinition)]
-            #TODO Add more connection layer types here
+            #NOTE Add more connection layer types here
         }
-        write_JSON(network, network_path)
+        write_JSON(network, network_path, "network")
+
+    def _write_layers(self, layers_path: Path) -> None:
+        for layer_name in self.layer_definitions:
+            specific_layer_path: Path = self._make_subfolder_if_not_exist(layers_path, layer_name)
+            layer_export: dict = self.layer_definitions[layer_name].export_as_JSON_dict()
+            write_JSON(layer_export, specific_layer_path, "Layer")
+            layer_data_export: dict = self.layer_definitions[layer_name].export_data_as_JSON_dict()
+            write_JSON(layer_data_export, specific_layer_path, self.layer_definitions[layer_name].input_type.value)
+
+
 
     def _make_subfolder_if_not_exist(self, parent_directory: Path, subfolder_name: str) -> Path:
         subfolder: Path = parent_directory.joinpath(subfolder_name + "/")
@@ -131,6 +142,6 @@ class Torch2VRCWriter():
         return output
 
 
-def write_JSON(dictionary: dict, full_JSON_file_path: Path) -> None:
-    with open(full_JSON_file_path, "w") as outfile:
+def write_JSON(dictionary: dict, folder_path: Path, JSON_file_name: str) -> None:
+    with open(Path.joinpath(folder_path, JSON_file_name + ".json"), "w") as outfile:
         json.dump(dictionary, outfile)

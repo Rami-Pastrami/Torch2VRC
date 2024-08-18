@@ -73,7 +73,7 @@ class LinearConnectionDefinition(AbstractConnectionDefinition):
         export_np_array_as_png(self.biases, normalizer, containing_folder_path.joinpath(Path(self.name + "_Linear_Bias.png")))
 
     def export_CRT_dict_to_hold_connection(self) -> dict:
-        return CRT_definition(self.number_input_neurons + 1, self.number_output_neurons, "Linear_" + self.name, False).export_as_JSON_dict()
+        return CRT_definition(self.number_input_neurons + 1, self.number_output_neurons, False).export_as_JSON_dict()
 
     def export_input_mappings(self) -> dict:
         return {"input": self.source_layer_name}

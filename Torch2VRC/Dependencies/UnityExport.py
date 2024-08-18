@@ -8,10 +8,9 @@ def write_network_JSON(network_details: dict, full_JSON_file__path: Path) -> Non
         json.dump(network_details, outfile)
 
 class CRT_definition:
-    def __init__(self, X_size: int, Y_size: int, name: str, is_double_buffered: bool, data_format: CRTDataType = CRTDataType.RHALF, wrapping: WrapMode = WrapMode.CLAMP):
+    def __init__(self, X_size: int, Y_size: int, is_double_buffered: bool, data_format: CRTDataType = CRTDataType.RHALF, wrapping: WrapMode = WrapMode.CLAMP):
         self.X_size: int = X_size
         self.Y_size: int = Y_size
-        self.name: str = name
         self.is_double_buffered: bool = is_double_buffered
         self.data_format: CRTDataType = data_format
         self.wrapping: WrapMode = wrapping
@@ -21,8 +20,8 @@ class CRT_definition:
             "x": self.X_size,
             "y": self.Y_size,
             "double_buffered": self.is_double_buffered,
-            "color_format": self.data_format,
-            "wrapping": self.wrapping
+            "color_format": self.data_format.value,
+            "wrapping": self.wrapping.value
         }
         return output
 

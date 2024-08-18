@@ -6,6 +6,7 @@ class AbstractLayerHelper:
         self.layer_name: str = name
         self.x_size: int = x_size
         self.y_size: int = y_size
+        self.input_type: InputType = InputType.CRT  # default
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = {
