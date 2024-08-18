@@ -5,7 +5,7 @@ import time
 from Torch2VRC.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
 from Torch2VRC.LayerHelpers import AbstractLayerHelper
 from Torch2VRC.Dependencies.ConnectionDefinitions import LinearConnectionDefinition
-from Torch2VRC.Dependencies.UnityExport import write_network_JSON
+from Torch2VRC.Dependencies.ArrayAsPNG import export_np_array_as_png, calculate_normalizer
 
 VERSION: int = 2
 '''Used to denote what version we should the denote the export as'''
@@ -43,11 +43,11 @@ class Torch2VRCWriter():
         network_folder: Path = self._make_subfolder_if_not_exist(root_neural_networks_folder, name_of_network)
         layers_folder: Path = self._make_subfolder_if_not_exist(network_folder, "Layers")
         connections_folder: Path = self._make_subfolder_if_not_exist(network_folder, "Connections")
-        linear_connections_folder: Path = self._make_subfolder_if_not_exist(connections_folder, "Linear")
         #NOTE Add other types of connection folders as they get added
 
         self._write_network_json(network_folder)
         self._write_layers(layers_folder)
+        self._write_connections(connections_folder)
 
 
 
@@ -100,6 +100,20 @@ class Torch2VRCWriter():
             layer_data_export: dict = self.layer_definitions[layer_name].export_data_as_JSON_dict()
             write_JSON(layer_data_export, specific_layer_path, self.layer_definitions[layer_name].input_type.value)
 
+    def _write_connections(self, connections_folder: Path) -> None:
+        for connection_name in self.connection_definitions:
+            connection_folder: Path = self._make_subfolder_if_not_exist(connections_folder, connection_name)
+            connection = self.connection_definitions[connection_name]
+            if isinstance(connection, LinearConnectionDefinition):
+                weights_normalization: float = connection.calculate_weights_png_normalizer()
+                bias_normalization: float = connection.calculate_biases_png_normalizer()
+                connection.export_weights_as_png_texture(weights_normalization, connection_folder)
+                connection.export_biases_as_png_texture(bias_normalization, connection_folder)
+                connection_metadata: dict = connection.export_metadata_as_JSON_dict(weights_normalization, bias_normalization)
+                write_JSON(connection_metadata, connection_folder, "Connection")
+                CRT_data: dict = connection.export_CRT_dict_to_hold_connection()
+                write_JSON(CRT_data, connection_folder, "CRT")
+            connection.export_CRT_dict_to_hold_connection()
 
 
     def _make_subfolder_if_not_exist(self, parent_directory: Path, subfolder_name: str) -> Path:

@@ -9,8 +9,6 @@ import torch as pt
 import numpy as np
 
 
-
-
 class AbstractConnectionDefinition:
     def __init__(self, network: nn, connection_name: str, target_layer_name: str):
         connections_raw: OrderedDict = network._modules # Cursed, but works
@@ -24,6 +22,11 @@ class AbstractConnectionDefinition:
             raise Exception(f"Unable to find layer object of name {self.connects_to_layer_of_name}!")
         return generated_layers[self.connects_to_layer_of_name]
 
+    def export_metadata_as_JSON_dict(self) -> dict:
+        output: dict = {
+            "destination_layer_name": self.connects_to_layer_of_name
+        }
+        return output
 
     def calculate_weights_png_normalizer(self) -> float:
         raise NotImplementedError("Implement This!")
@@ -43,8 +46,6 @@ class AbstractConnectionDefinition:
     def export_CRT_dict_to_hold_connection(self) -> dict:
         raise NotImplementedError("Implement This!")
 
-    def export_input_mappings(self) -> dict:
-        raise NotImplementedError("Implement This!")
 
 class LinearConnectionDefinition(AbstractConnectionDefinition):
     def __init__(self, network: pt.nn, connection_helper: LinearConnectionHelper):
@@ -57,12 +58,22 @@ class LinearConnectionDefinition(AbstractConnectionDefinition):
         self.weights: np.ndarray = linear_connection.weight.cpu().detach().numpy()
         self.biases: np.ndarray = linear_connection.bias.cpu().detach().numpy().reshape(-1, 1)
 
+    def export_metadata_as_JSON_dict(self, weights_normalizer: float, bias_normalizer: float) -> dict:
+        output: dict = super().export_metadata_as_JSON_dict()
+        output["type"] = "Linear"
+        output["source_layer_name"] = self.source_layer_name
+        output["weights_normalizer"] = weights_normalizer
+        output["bias_normalizer"] = bias_normalizer
+        return output
+
+
+
     def calculate_weights_png_normalizer(self) -> float:
         return calculate_normalizer(self.weights)
 
 
     def export_weights_as_png_texture(self, normalizer: float, containing_folder_path: Path):
-        export_np_array_as_png(self.weights, normalizer, containing_folder_path.joinpath(Path(self.name + "_Linear_Weights.png")))
+        export_np_array_as_png(self.weights, normalizer, containing_folder_path.joinpath(Path("Linear_Weights.png")))
 
 
     def calculate_biases_png_normalizer(self) -> float:
@@ -70,10 +81,7 @@ class LinearConnectionDefinition(AbstractConnectionDefinition):
 
 
     def export_biases_as_png_texture(self, normalizer: float, containing_folder_path: Path):
-        export_np_array_as_png(self.biases, normalizer, containing_folder_path.joinpath(Path(self.name + "_Linear_Bias.png")))
+        export_np_array_as_png(self.biases, normalizer, containing_folder_path.joinpath(Path("Linear_Bias.png")))
 
     def export_CRT_dict_to_hold_connection(self) -> dict:
         return CRT_definition(self.number_input_neurons + 1, self.number_output_neurons, False).export_as_JSON_dict()
-
-    def export_input_mappings(self) -> dict:
-        return {"input": self.source_layer_name}
