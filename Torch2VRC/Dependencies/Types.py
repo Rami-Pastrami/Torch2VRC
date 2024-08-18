@@ -5,7 +5,7 @@ class ActivationFunction(Enum):
     tanH = "tanH"
 
 class InputType(Enum):
-    float_array = "float"
+    float_array = "float_array"
     CRT = "CRT"
 
 class CRTDataType(Enum):
