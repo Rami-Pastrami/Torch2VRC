@@ -27,14 +27,12 @@ class AbstractLayerHelper:
         return float_array.export_as_JSON_dict()
 
 class InputLayerHelper(AbstractLayerHelper):
-    def __init__(self, name: str, x_size: int, y_size: int, connects_outward_via_connection_of_name: str, input_type: InputType):
+    def __init__(self, name: str, x_size: int, y_size: int, input_type: InputType):
         super().__init__(name, x_size, y_size)
-        self.connects_outward_via_connection_of_name = connects_outward_via_connection_of_name
         self.input_type: InputType = input_type
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = super().export_as_JSON_dict()
-        output["connects_to_connection"] = self.connects_outward_via_connection_of_name
         output["data_type"] = self.input_type.value
         output["data_file_name"] = self.input_type.value + ".json"
         return output
@@ -46,14 +44,12 @@ class InputLayerHelper(AbstractLayerHelper):
             return self._export_data_as_float_data()
 
 class HiddenLayerHelper(AbstractLayerHelper):
-    def __init__(self, name: str, x_size: int, y_size: int, connects_outward_via_connection_of_name: str, incoming_activation_function: ActivationFunction):
+    def __init__(self, name: str, x_size: int, y_size: int, incoming_activation_function: ActivationFunction):
         super().__init__(name, x_size, y_size)
-        self.connects_outward_via_connection_of_name = connects_outward_via_connection_of_name
         self.incoming_activation_function: ActivationFunction = incoming_activation_function
 
     def export_as_JSON_dict(self) -> dict:
         output: dict = super().export_as_JSON_dict()
-        output["connects_to_connection"] = self.connects_outward_via_connection_of_name
         output["incoming_activation_function"] = self.incoming_activation_function.value
         output["data_type"] = InputType.CRT.value  # Hidden layers will always be CRTs
         output["data_file_name"] = InputType.CRT.value + ".json"

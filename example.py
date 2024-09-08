@@ -104,8 +104,8 @@ connection_helpers: list[AbstractConnectionHelper] = [ # These have to match the
 ]
 
 layer_helpers: list[AbstractLayerHelper] = [
-    InputLayerHelper("input", NUMBER_NEURONS_INPUT, 1, "inner_connections", InputType.float_array),
-    HiddenLayerHelper("hidden1", NUMBER_NEURONS_HIDDEN, 1,"outer_connections", ActivationFunction.tanH),
+    InputLayerHelper("input", NUMBER_NEURONS_INPUT, 1, InputType.float_array),
+    HiddenLayerHelper("hidden1", NUMBER_NEURONS_HIDDEN, 1, ActivationFunction.tanH),
     OutputLayerHelper("output", NUMBER_NEURONS_OUTPUT, 1)
 ]
 
