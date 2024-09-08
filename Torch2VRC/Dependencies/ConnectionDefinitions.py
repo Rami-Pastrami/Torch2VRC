@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from torch import nn
 from pathlib import Path
+from Torch2VRC.Dependencies.Types import ActivationFunction
 from Torch2VRC.LayerHelpers import AbstractLayerHelper
 from Torch2VRC.ConnectionHelpers import AbstractConnectionHelper, LinearConnectionHelper
 from Torch2VRC.Dependencies.ArrayAsPNG import export_np_array_as_png, calculate_normalizer
@@ -16,6 +17,7 @@ class AbstractConnectionDefinition:
             raise Exception("Given connection name does not exist in neural network!")
         self.name: str = connection_helper.connection_name_from_torch
         self.connects_to_layer_of_name: str = connection_helper.target_layer_name
+        self.outgoing_activation_function: ActivationFunction = connection_helper.outgoing_activation_function
 
     def get_destination_layer(self, generated_layers: dict) -> AbstractLayerHelper:
         if self.connects_to_layer_of_name not in generated_layers:
@@ -24,7 +26,8 @@ class AbstractConnectionDefinition:
 
     def export_metadata_as_JSON_dict(self) -> dict:
         output: dict = {
-            "destination_layer_name": self.connects_to_layer_of_name
+            "destination_layer_name": self.connects_to_layer_of_name,
+            "outgoing_activation_function": self.outgoing_activation_function.value
         }
         return output
 

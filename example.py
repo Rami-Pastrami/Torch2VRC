@@ -99,13 +99,13 @@ print(f"Neural Network has been trained")
 ## Define helper definitions to aid in model export
 
 connection_helpers: list[AbstractConnectionHelper] = [ # These have to match the names of the connections from the torch model
-    LinearConnectionHelper("inner_connections", "hidden1", "input"),
-    LinearConnectionHelper("outer_connections", "output", "hidden1")
+    LinearConnectionHelper("inner_connections", "hidden1", "input", ActivationFunction.tanH),
+    LinearConnectionHelper("outer_connections", "output", "hidden1", ActivationFunction.none)
 ]
 
 layer_helpers: list[AbstractLayerHelper] = [
     InputLayerHelper("input", NUMBER_NEURONS_INPUT, 1, InputType.float_array),
-    HiddenLayerHelper("hidden1", NUMBER_NEURONS_HIDDEN, 1, ActivationFunction.tanH),
+    HiddenLayerHelper("hidden1", NUMBER_NEURONS_HIDDEN, 1),
     OutputLayerHelper("output", NUMBER_NEURONS_OUTPUT, 1)
 ]
 
