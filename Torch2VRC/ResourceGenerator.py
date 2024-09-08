@@ -48,38 +48,7 @@ class Torch2VRCWriter():
         self._write_network_json(network_folder)
         self._write_layers(layers_folder)
         self._write_connections(connections_folder)
-
-
-
         return
-        #TODO remove old
-        connections_dir: Path = self._make_subfolder_if_not_exist(root_neural_networks_folder, "connections")
-
-        # init vars that will be used to build the network.json
-        connection_data: dict = {} # store generated normalizers and CRT info during texture import to be saved in the network json
-        layer_data: dict = {}
-
-        # establish constant / dependency files that are shared between networks (and by version)
-
-
-        # export connection weights and biases as textures, get normalizer and CRT information
-        connection_data = self._export_connections_and_generate_detail_dict(connections_dir)
-
-        # export layer details
-        layer_data = self._export_layer_details()
-
-        # write network_definition.json
-        network_dict = {
-            "network_name": self.network_name,
-            "layers": layer_data,
-            "connections": connection_data
-        }
-
-
-
-
-
-
 
     def _write_network_json(self, network_path: Path) -> None:
         network: dict = {
