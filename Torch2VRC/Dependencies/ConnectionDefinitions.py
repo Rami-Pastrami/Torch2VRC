@@ -10,12 +10,12 @@ import numpy as np
 
 
 class AbstractConnectionDefinition:
-    def __init__(self, network: nn, connection_name: str, target_layer_name: str):
+    def __init__(self, network: nn, connection_helper: AbstractConnectionHelper):
         connections_raw: OrderedDict = network._modules # Cursed, but works
-        if connection_name not in connections_raw.keys():
+        if connection_helper.connection_name_from_torch not in connections_raw.keys():
             raise Exception("Given connection name does not exist in neural network!")
-        self.name: str = connection_name
-        self.connects_to_layer_of_name: str = target_layer_name
+        self.name: str = connection_helper.connection_name_from_torch
+        self.connects_to_layer_of_name: str = connection_helper.target_layer_name
 
     def get_destination_layer(self, generated_layers: dict) -> AbstractLayerHelper:
         if self.connects_to_layer_of_name not in generated_layers:
@@ -49,7 +49,7 @@ class AbstractConnectionDefinition:
 
 class LinearConnectionDefinition(AbstractConnectionDefinition):
     def __init__(self, network: pt.nn, connection_helper: LinearConnectionHelper):
-        super().__init__(network, connection_helper.connection_name_from_torch, connection_helper.target_layer_name)
+        super().__init__(network, connection_helper)
 
         self.source_layer_name: str = connection_helper.source_layer_name
         linear_connection: nn.Linear = network._modules[connection_helper.connection_name_from_torch]
