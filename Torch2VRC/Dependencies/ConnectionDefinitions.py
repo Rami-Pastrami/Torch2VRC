@@ -18,6 +18,8 @@ class AbstractConnectionDefinition:
         self.name: str = connection_helper.connection_name_from_torch
         self.connects_to_layer_of_name: str = connection_helper.target_layer_name
         self.outgoing_activation_function: ActivationFunction = connection_helper.outgoing_activation_function
+        self.number_inputs: int = connection_helper.number_inputs
+        self.number_outputs: int = connection_helper.number_outputs
 
     def get_destination_layer(self, generated_layers: dict) -> AbstractLayerHelper:
         if self.connects_to_layer_of_name not in generated_layers:
@@ -27,7 +29,9 @@ class AbstractConnectionDefinition:
     def export_metadata_as_JSON_dict(self) -> dict:
         output: dict = {
             "destination_layer_name": self.connects_to_layer_of_name,
-            "outgoing_activation_function": self.outgoing_activation_function.value
+            "outgoing_activation_function": self.outgoing_activation_function.value,
+            "number_inputs":  self.number_inputs,
+            "number_outputs": self.number_outputs
         }
         return output
 
